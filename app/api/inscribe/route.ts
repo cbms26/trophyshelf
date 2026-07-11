@@ -31,7 +31,7 @@ Genre: ${genre || "Unknown"}
 Write 2-3 sentences. Address the reader directly and second-person ("you"). Evoke the specific spirit, themes, or mood of THIS book — not generic praise. Sound like an engraving on a real trophy: dignified but heartfelt. Do not use the reader's name, hashtags, emoji, or quotation marks.`;
 
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
