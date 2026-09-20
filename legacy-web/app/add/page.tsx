@@ -53,7 +53,10 @@ export default function AddTrophyPage() {
     try {
       const res = await fetch("/api/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-trophyshelf-client": "web/1.0",
+        },
         body: JSON.stringify({ image: imageDataUrl }),
       });
       const data = await res.json();
@@ -95,7 +98,10 @@ export default function AddTrophyPage() {
     try {
       const res = await fetch("/api/inscribe", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-trophyshelf-client": "web/1.0",
+        },
         body: JSON.stringify({
           title: book.title,
           author: book.author,

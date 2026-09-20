@@ -10,7 +10,10 @@ type AnalyzeApiResponse =
 export async function analyzeCover(base64Jpeg: string): Promise<DetectedCover> {
   const res = await fetch(`${API_BASE_URL}/api/analyze`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-trophyshelf-client': 'mobile/1.0',
+    },
     body: JSON.stringify({ image: `data:image/jpeg;base64,${base64Jpeg}` }),
   });
 

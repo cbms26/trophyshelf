@@ -3,6 +3,9 @@
 // Returns { ok: true, book: { title, author, genre, pageCount } } or { ok: false, error }.
 
 import { NextResponse } from "next/server";
+import { guardRequest } from "@/lib/apiGuard";
+
+export const maxDuration = 30;
 
 type BookInfo = {
   title: string;
@@ -12,6 +15,9 @@ type BookInfo = {
 };
 
 export async function POST(req: Request) {
+  const blocked = await guardRequest(req);
+  if (blocked) return blocked;
+
   try {
     const { image } = (await req.json()) as { image?: string };
 

@@ -4,6 +4,9 @@
 // Returns { ok: true, inscription: string } or { ok: false, error }.
 
 import { NextResponse } from "next/server";
+import { guardRequest } from "@/lib/apiGuard";
+
+export const maxDuration = 30;
 
 type InscribeBody = {
   title?: string;
@@ -12,6 +15,9 @@ type InscribeBody = {
 };
 
 export async function POST(req: Request) {
+  const blocked = await guardRequest(req);
+  if (blocked) return blocked;
+
   try {
     const { title, author, genre } = (await req.json()) as InscribeBody;
 
