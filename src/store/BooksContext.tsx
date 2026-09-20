@@ -1,28 +1,49 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { Book, ReadingBook } from '../types';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Book } from '../types';
 
-const BOOKS_KEY = 'trophyshelf/books/v1';
+const BOOKS_KEY_V1 = 'trophyshelf/books/v1';
+const BOOKS_KEY = 'trophyshelf/books/v2';
 const ONBOARDED_KEY = 'trophyshelf/onboarded/v1';
-
-// Currently-reading is out of scope for this pass (no capture flow feeds it
-// yet) — seeded once so the shelf's "reading now" row has something real to
-// show, same two volumes the design mock used.
-const SEED_READING: ReadingBook[] = [
-  { id: 'r1', title: 'The Bee Sting', author: 'Paul Murray', pagesRead: 218, pages: 656 },
-  { id: 'r2', title: 'Orbital', author: 'Samantha Harvey', pagesRead: 41, pages: 136 },
-];
 
 type BooksContextValue = {
   ready: boolean;
   onboarded: boolean;
   books: Book[];
-  reading: ReadingBook[];
+  finished: Book[];
+  reading: Book[];
   completeOnboarding: () => void;
   addBook: (book: Book) => void;
+  updateBook: (id: string, patch: Partial<Book>) => void;
+  deleteBook: (id: string) => void;
+  nextVolume: () => number;
 };
 
 const BooksContext = createContext<BooksContextValue | null>(null);
+
+// v1 rows predate status/pagesRead/createdAt and had a fabricated startedAt.
+function migrateV1(rows: Record<string, unknown>[]): Book[] {
+  return rows.map((r) => {
+    const finishedAt = typeof r.finishedAt === 'string' ? r.finishedAt : new Date().toISOString();
+    return {
+      id: String(r.id),
+      title: String(r.title ?? ''),
+      author: String(r.author ?? ''),
+      genre: String(r.genre ?? ''),
+      pages: Number(r.pages) || 0,
+      pagesRead: Number(r.pages) || 0,
+      note: String(r.note ?? ''),
+      inscription: String(r.inscription ?? ''),
+      coverUri: typeof r.coverUri === 'string' ? r.coverUri : null,
+      status: 'finished',
+      startedAt: null,
+      finishedAt,
+      volume: typeof r.volume === 'number' ? r.volume : null,
+      createdAt: finishedAt,
+      updatedAt: finishedAt,
+    };
+  });
+}
 
 export function BooksProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -32,11 +53,19 @@ export function BooksProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const [storedBooks, storedOnboarded] = await Promise.all([
+        const [v2, v1, storedOnboarded] = await Promise.all([
           AsyncStorage.getItem(BOOKS_KEY),
+          AsyncStorage.getItem(BOOKS_KEY_V1),
           AsyncStorage.getItem(ONBOARDED_KEY),
         ]);
-        if (storedBooks) setBooks(JSON.parse(storedBooks));
+        if (v2) {
+          setBooks(JSON.parse(v2));
+        } else if (v1) {
+          const migrated = migrateV1(JSON.parse(v1));
+          setBooks(migrated);
+          await AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(migrated));
+          await AsyncStorage.removeItem(BOOKS_KEY_V1);
+        }
         if (storedOnboarded === '1') setOnboarded(true);
       } finally {
         setReady(true);
@@ -44,26 +73,36 @@ export function BooksProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const value = useMemo<BooksContextValue>(
-    () => ({
+  const persist = useCallback((updater: (prev: Book[]) => Book[]) => {
+    setBooks((prev) => {
+      const next = updater(prev);
+      AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
+
+  const value = useMemo<BooksContextValue>(() => {
+    const finished = books.filter((b) => b.status === 'finished');
+    const reading = books.filter((b) => b.status === 'reading');
+    return {
       ready,
       onboarded,
       books,
-      reading: SEED_READING,
+      finished,
+      reading,
       completeOnboarding: () => {
         setOnboarded(true);
         AsyncStorage.setItem(ONBOARDED_KEY, '1').catch(() => {});
       },
-      addBook: (book: Book) => {
-        setBooks((prev) => {
-          const next = [book, ...prev];
-          AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(next)).catch(() => {});
-          return next;
-        });
-      },
-    }),
-    [ready, onboarded, books]
-  );
+      addBook: (book) => persist((prev) => [book, ...prev]),
+      updateBook: (id, patch) =>
+        persist((prev) =>
+          prev.map((b) => (b.id === id ? { ...b, ...patch, updatedAt: new Date().toISOString() } : b))
+        ),
+      deleteBook: (id) => persist((prev) => prev.filter((b) => b.id !== id)),
+      nextVolume: () => finished.reduce((max, b) => Math.max(max, b.volume ?? 0), 0) + 1,
+    };
+  }, [ready, onboarded, books, persist]);
 
   return <BooksContext.Provider value={value}>{children}</BooksContext.Provider>;
 }

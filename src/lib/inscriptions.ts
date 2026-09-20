@@ -1,7 +1,5 @@
-// Stand-in for the AI-written plaque inscription (design's stack note (1i)
-// puts this behind a server-side model call). Templated locally so the
-// celebration and detail screens have real, book-specific text to show
-// without a backend.
+// Offline fallback for the plaque inscription. The real one is written by
+// Gemini via lib/inscribe.ts; this only runs when that call fails.
 const OPENERS = [
   'A quiet, exacting book',
   'A strange, kind book',
@@ -22,9 +20,15 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export function generateInscription(title: string, days: number): string {
-  const dayWord = days === 1 ? '1 day' : `${days} days`;
-  return `${pick(OPENERS)}, finished in ${dayWord} — ${pick(CLOSERS)}`;
+export function fallbackInscription(days: number | null): string {
+  const middle = days === null ? 'finished and shelved' : `finished in ${days === 1 ? '1 day' : `${days} days`}`;
+  return `${pick(OPENERS)}, ${middle} — ${pick(CLOSERS)}`;
+}
+
+export function daysBetween(startIso: string | null, endIso: string | null): number | null {
+  if (!startIso || !endIso) return null;
+  const ms = new Date(endIso).getTime() - new Date(startIso).getTime();
+  return Math.max(1, Math.round(ms / (1000 * 60 * 60 * 24)));
 }
 
 const ORDINALS = [

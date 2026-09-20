@@ -1,65 +1,135 @@
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CoverPlate from '../components/CoverPlate';
-import { generateInscription } from '../lib/inscriptions';
+import { writeInscription } from '../lib/inscribe';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
 import { color, font, radius } from '../theme/tokens';
-import { Book } from '../types';
+import { Book, BookStatus } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Confirm'>;
 type Route = RouteProp<RootStackParamList, 'Confirm'>;
 
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 export default function ConfirmScreen() {
   const navigation = useNavigation<Nav>();
   const { params } = useRoute<Route>();
-  const { books, addBook } = useBooks();
-  const { detected, photoUri } = params;
+  const { books, addBook, updateBook, nextVolume } = useBooks();
 
-  const [title, setTitle] = useState(detected.title);
-  const [author, setAuthor] = useState(detected.author);
-  const [genre, setGenre] = useState(detected.genre);
-  const [pages, setPages] = useState(detected.pages ? String(detected.pages) : '');
-  const [note, setNote] = useState('');
+  const editing = params.mode === 'edit' ? books.find((b) => b.id === params.bookId) ?? null : null;
+  const photoUri = params.mode === 'create' ? params.photoUri : editing?.coverUri ?? null;
+  const detected = params.mode === 'create' ? params.detected : null;
+  const isFromCover = !!detected && detected.title.length > 0;
 
-  const isFromCover = detected.title.length > 0;
+  const [title, setTitle] = useState(editing?.title ?? detected?.title ?? '');
+  const [author, setAuthor] = useState(editing?.author ?? detected?.author ?? '');
+  const [genre, setGenre] = useState(editing?.genre ?? detected?.genre ?? '');
+  const [pages, setPages] = useState(
+    editing ? String(editing.pages || '') : detected?.pages ? String(detected.pages) : ''
+  );
+  const [pagesRead, setPagesRead] = useState(editing ? String(editing.pagesRead || '') : '');
+  const [note, setNote] = useState(editing?.note ?? '');
+  const [status, setStatus] = useState<BookStatus>(editing?.status ?? 'finished');
+  const [saving, setSaving] = useState(false);
 
-  const handleEnshrine = () => {
-    const finishedAt = new Date();
-    const days = 3 + Math.floor(Math.random() * 12);
-    const startedAt = new Date(finishedAt.getTime() - days * 24 * 60 * 60 * 1000);
-    const pageCount = parseInt(pages, 10) || 0;
+  const pageCount = parseInt(pages, 10) || 0;
+  const readCount = Math.min(pageCount || Number.MAX_SAFE_INTEGER, parseInt(pagesRead, 10) || 0);
+
+  const trimmed = () => ({
+    title: title.trim() || 'Untitled',
+    author: author.trim() || 'Unknown',
+    genre: genre.trim() || 'Unsorted',
+    pages: pageCount,
+    note: note.trim(),
+  });
+
+  const handleSaveEdit = () => {
+    if (!editing) return;
+    updateBook(editing.id, {
+      ...trimmed(),
+      pagesRead: editing.status === 'reading' ? readCount : pageCount,
+    });
+    navigation.goBack();
+  };
+
+  const handleStartReading = () => {
+    const now = new Date().toISOString();
     const book: Book = {
       id: `${Date.now()}`,
-      title: title.trim() || 'Untitled',
-      author: author.trim() || 'Unknown',
-      genre: genre.trim() || 'Unsorted',
-      pages: pageCount,
-      note: note.trim(),
-      inscription: generateInscription(title.trim() || 'Untitled', days),
+      ...trimmed(),
+      pagesRead: readCount,
+      inscription: '',
       coverUri: photoUri,
-      startedAt: startedAt.toISOString(),
-      finishedAt: finishedAt.toISOString(),
-      volume: books.length + 1,
+      status: 'reading',
+      startedAt: now,
+      finishedAt: null,
+      volume: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    addBook(book);
+    navigation.goBack();
+  };
+
+  const handleEnshrine = async () => {
+    setSaving(true);
+    const fields = trimmed();
+    const now = new Date().toISOString();
+    const { text } = await writeInscription({
+      title: fields.title,
+      author: fields.author,
+      genre: fields.genre,
+      days: null,
+    });
+    const book: Book = {
+      id: `${Date.now()}`,
+      ...fields,
+      pagesRead: pageCount,
+      inscription: text,
+      coverUri: photoUri,
+      status: 'finished',
+      startedAt: null,
+      finishedAt: now,
+      volume: nextVolume(),
+      createdAt: now,
+      updatedAt: now,
     };
     addBook(book);
     navigation.replace('Plaque', { bookId: book.id });
   };
 
+  const primary = editing
+    ? { label: 'Save changes', onPress: handleSaveEdit }
+    : status === 'reading'
+      ? { label: 'Start reading', onPress: handleStartReading }
+      : { label: saving ? 'Engraving the plaque…' : 'Enshrine it', onPress: handleEnshrine };
+
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.header}>
-          <TouchableOpacity accessibilityRole="button" onPress={() => navigation.goBack()}>
-            <Text style={styles.retake}>Retake</Text>
+          <TouchableOpacity accessibilityRole="button" onPress={() => navigation.goBack()} disabled={saving}>
+            <Text style={styles.retake}>{editing ? 'Cancel' : 'Retake'}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Confirm the details</Text>
+          <Text style={styles.headerTitle}>{editing ? 'Edit the details' : 'Confirm the details'}</Text>
           <View style={{ width: 52 }} />
         </View>
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.introRow}>
             <CoverPlate style={styles.plate} imageUri={photoUri ?? undefined} label={photoUri ? undefined : 'cover photo'} />
             <View style={styles.introCopy}>
@@ -72,25 +142,40 @@ export default function ConfirmScreen() {
                     Check each field. Covers lie, and the reader misreads decorative type more often than plain.
                   </Text>
                 </>
+              ) : editing ? (
+                <Text style={styles.introBody}>Change anything here. The inscription stays as it was written.</Text>
               ) : (
                 <Text style={styles.introBody}>Enter the details yourself — no cover photo this time.</Text>
               )}
             </View>
           </View>
 
+          {!editing ? (
+            <View style={styles.seg}>
+              <SegOption label="Finished" active={status === 'finished'} onPress={() => setStatus('finished')} />
+              <SegOption label="Still reading" active={status === 'reading'} onPress={() => setStatus('reading')} />
+            </View>
+          ) : null}
+
           <View style={styles.fields}>
             <Field label="Title" value={title} onChangeText={setTitle} />
             <Field label="Author" value={author} onChangeText={setAuthor} />
             <Field label="Genre" value={genre} onChangeText={setGenre} />
             <Field label="Pages" value={pages} onChangeText={setPages} keyboardType="number-pad" />
-            <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Finished on</Text>
-              <View style={styles.inputStatic}>
-                <Text style={styles.inputStaticText}>
-                  {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </Text>
+
+            {status === 'reading' ? (
+              <Field label="Pages read so far" value={pagesRead} onChangeText={setPagesRead} keyboardType="number-pad" />
+            ) : (
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>Finished on</Text>
+                <View style={styles.inputStatic}>
+                  <Text style={styles.inputStaticText}>
+                    {formatDate(editing?.finishedAt ?? new Date().toISOString())}
+                  </Text>
+                </View>
               </View>
-            </View>
+            )}
+
             <View style={styles.field}>
               <Text style={styles.fieldLabel}>
                 A note to your future self <Text style={{ opacity: 0.6 }}>(optional)</Text>
@@ -107,15 +192,38 @@ export default function ConfirmScreen() {
           </View>
         </ScrollView>
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.discardBtn} accessibilityRole="button" onPress={() => navigation.goBack()}>
-            <Text style={styles.discardLabel}>Discard</Text>
+          <TouchableOpacity
+            style={styles.discardBtn}
+            accessibilityRole="button"
+            onPress={() => navigation.goBack()}
+            disabled={saving}
+          >
+            <Text style={styles.discardLabel}>{editing ? 'Cancel' : 'Discard'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.enshrineBtn} accessibilityRole="button" onPress={handleEnshrine}>
-            <Text style={styles.enshrineLabel}>Enshrine it</Text>
+          <TouchableOpacity
+            style={[styles.enshrineBtn, saving && styles.btnDisabled]}
+            accessibilityRole="button"
+            onPress={primary.onPress}
+            disabled={saving}
+          >
+            <Text style={styles.enshrineLabel}>{primary.label}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+function SegOption({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      style={[styles.segOpt, active && styles.segOptActive]}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: active }}
+      onPress={onPress}
+    >
+      <Text style={[styles.segLabel, active && styles.segLabelActive]}>{label}</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -163,6 +271,7 @@ const styles = StyleSheet.create({
     fontFamily: font.body,
     fontSize: 13,
     color: color.accent,
+    width: 52,
   },
   headerTitle: {
     fontFamily: font.heading,
@@ -208,6 +317,33 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 19,
     color: color.textMuted62,
+  },
+  seg: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: color.divider,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  segOpt: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  segOptActive: {
+    borderWidth: 1,
+    borderColor: color.accent,
+    borderRadius: radius.md,
+    margin: -1,
+  },
+  segLabel: {
+    fontFamily: font.body,
+    fontSize: 13,
+    color: color.text,
+  },
+  segLabelActive: {
+    color: color.accent,
   },
   fields: {
     gap: 12,
@@ -277,6 +413,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingVertical: 12,
     alignItems: 'center',
+  },
+  btnDisabled: {
+    opacity: 0.6,
   },
   enshrineLabel: {
     fontFamily: font.heading,

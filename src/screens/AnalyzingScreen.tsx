@@ -22,7 +22,7 @@ export default function AnalyzingScreen() {
     setError(null);
     try {
       const detected = await analyzeCover(params.base64);
-      navigation.replace('Confirm', { photoUri: params.photoUri, detected });
+      navigation.replace('Confirm', { mode: 'create', photoUri: params.photoUri, detected });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Couldn’t read the cover.');
     }
@@ -52,7 +52,9 @@ export default function AnalyzingScreen() {
           <TouchableOpacity
             style={styles.manualBtn}
             accessibilityRole="button"
-            onPress={() => navigation.replace('Confirm', { photoUri: params.photoUri, detected: BLANK_DETECTED })}
+            onPress={() =>
+              navigation.replace('Confirm', { mode: 'create', photoUri: params.photoUri, detected: BLANK_DETECTED })
+            }
           >
             <Text style={styles.manualLabel}>Enter details manually</Text>
           </TouchableOpacity>

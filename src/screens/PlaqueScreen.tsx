@@ -1,9 +1,11 @@
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRef } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MedalIcon } from '../components/icons';
 import { ordinalWords } from '../lib/inscriptions';
+import { sharePlate } from '../lib/sharePlate';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
 import { color, font } from '../theme/tokens';
@@ -16,38 +18,36 @@ export default function PlaqueScreen() {
   const { params } = useRoute<Route>();
   const { books } = useBooks();
   const book = books.find((b) => b.id === params.bookId);
+  const plateRef = useRef<View>(null);
 
   if (!book) return null;
 
-  const share = () => {
-    Share.share({
-      message: `${book.title} — ${book.author}\n\n"${book.inscription}"\n\nEnshrined on TrophyShelf.`,
-    }).catch(() => {});
-  };
-
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+      <View ref={plateRef} collapsable={false} style={styles.plateCard}>
       <View style={styles.seal}>
         <View style={styles.sealInner} />
         <MedalIcon size={40} color={color.accent500} strokeWidth={1.2} />
       </View>
       <View style={styles.titleBlock}>
-        <Text style={styles.kicker}>Volume the {ordinalWords(book.volume)}</Text>
+        <Text style={styles.kicker}>Volume the {ordinalWords(book.volume ?? 1)}</Text>
         <Text style={styles.title}>{book.title}</Text>
         <Text style={styles.meta}>
-          {book.author} · {book.pages} pages
+          {book.author}
+          {book.pages > 0 ? ` · ${book.pages} pages` : ''}
         </Text>
       </View>
       <Text style={styles.inscription}>"{book.inscription}"</Text>
+      </View>
       <View style={styles.actions}>
         <TouchableOpacity
           style={styles.primaryBtn}
           accessibilityRole="button"
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.popToTop()}
         >
           <Text style={styles.primaryLabel}>Place it on the shelf</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.ghostBtn} accessibilityRole="button" onPress={share}>
+        <TouchableOpacity style={styles.ghostBtn} accessibilityRole="button" onPress={() => sharePlate(book, plateRef)}>
           <Text style={styles.ghostLabel}>Share this plate</Text>
         </TouchableOpacity>
       </View>
@@ -56,6 +56,13 @@ export default function PlaqueScreen() {
 }
 
 const styles = StyleSheet.create({
+  plateCard: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    gap: 28,
+    paddingVertical: 24,
+    backgroundColor: color.neutral900,
+  },
   screen: {
     flex: 1,
     backgroundColor: color.neutral900,

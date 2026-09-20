@@ -1,23 +1,21 @@
+export type BookStatus = 'reading' | 'finished';
+
 export type Book = {
   id: string;
   title: string;
   author: string;
   genre: string;
   pages: number;
+  pagesRead: number;
   note: string;
   inscription: string;
   coverUri: string | null;
-  startedAt: string; // ISO date
-  finishedAt: string; // ISO date
-  volume: number;
-};
-
-export type ReadingBook = {
-  id: string;
-  title: string;
-  author: string;
-  pagesRead: number;
-  pages: number;
+  status: BookStatus;
+  startedAt: string | null; // ISO date; null when unknown
+  finishedAt: string | null; // ISO date; null while still reading
+  volume: number | null; // assigned when finished
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type DetectedCover = {

@@ -5,6 +5,7 @@ import ConfirmScreen from '../screens/ConfirmScreen';
 import DetailScreen from '../screens/DetailScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import PlaqueScreen from '../screens/PlaqueScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import ShelfScreen from '../screens/ShelfScreen';
 import YearScreen from '../screens/YearScreen';
 import { useBooks } from '../store/BooksContext';
@@ -23,6 +24,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Shelf" component={ShelfScreen} />
       <Stack.Screen name="Year" component={YearScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Capture" component={CaptureScreen} options={{ animation: 'slide_from_bottom' }} />
       <Stack.Screen name="Analyzing" component={AnalyzingScreen} />
       <Stack.Screen name="Confirm" component={ConfirmScreen} />

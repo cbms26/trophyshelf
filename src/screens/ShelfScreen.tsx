@@ -1,40 +1,121 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomBar from '../components/BottomBar';
 import CoverPlate from '../components/CoverPlate';
-import { SearchIcon, YearIcon } from '../components/icons';
+import { GearIcon, SearchIcon, YearIcon } from '../components/icons';
+import ProgressSheet from '../components/ProgressSheet';
+import { writeInscription } from '../lib/inscribe';
+import { daysBetween } from '../lib/inscriptions';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
 import { color, font, radius, space } from '../theme/tokens';
-import { Book, ReadingBook } from '../types';
+import { Book } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+type SortKey = 'newest' | 'title' | 'pages';
+const SORT_LABEL: Record<SortKey, string> = { newest: 'Newest', title: 'Title', pages: 'Pages' };
+const SORT_ORDER: SortKey[] = ['newest', 'title', 'pages'];
+
 export default function ShelfScreen() {
-  const { books, reading } = useBooks();
+  const navigation = useNavigation<Nav>();
+  const { finished, reading, updateBook, nextVolume } = useBooks();
+  const [query, setQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [sort, setSort] = useState<SortKey>('newest');
+  const [progressBook, setProgressBook] = useState<Book | null>(null);
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? finished.filter((b) => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q))
+      : finished;
+    const sorted = [...filtered];
+    if (sort === 'title') sorted.sort((a, b) => a.title.localeCompare(b.title));
+    else if (sort === 'pages') sorted.sort((a, b) => b.pages - a.pages);
+    else sorted.sort((a, b) => (b.finishedAt ?? '').localeCompare(a.finishedAt ?? ''));
+    return sorted;
+  }, [finished, query, sort]);
+
+  const finishReading = async () => {
+    if (!progressBook) return;
+    const now = new Date().toISOString();
+    const { text } = await writeInscription({
+      title: progressBook.title,
+      author: progressBook.author,
+      genre: progressBook.genre,
+      days: daysBetween(progressBook.startedAt, now),
+    });
+    updateBook(progressBook.id, {
+      status: 'finished',
+      finishedAt: now,
+      pagesRead: progressBook.pages,
+      inscription: text,
+      volume: nextVolume(),
+    });
+    const id = progressBook.id;
+    setProgressBook(null);
+    navigation.navigate('Plaque', { bookId: id });
+  };
+
+  const isEmpty = finished.length === 0 && reading.length === 0;
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
-      <Header />
-      {books.length === 0 ? (
+      <Header
+        searchOpen={searchOpen}
+        onToggleSearch={() => {
+          setSearchOpen((v) => !v);
+          setQuery('');
+        }}
+      />
+      {searchOpen ? (
+        <TextInput
+          style={styles.searchInput}
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search by title or author"
+          placeholderTextColor={color.textMuted55}
+          autoFocus
+          autoCorrect={false}
+          returnKeyType="search"
+        />
+      ) : null}
+      {isEmpty ? (
         <EmptyShelf />
       ) : (
         <>
-          <StatsRow books={books} />
-          <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-            {reading.length > 0 ? <ReadingNow reading={reading} /> : null}
-            <EnshrinedGrid books={books} />
+          {finished.length > 0 ? <StatsRow books={finished} /> : null}
+          <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+            {reading.length > 0 ? <ReadingNow reading={reading} onPress={setProgressBook} /> : null}
+            <EnshrinedGrid
+              books={visible}
+              total={finished.length}
+              sortLabel={SORT_LABEL[sort]}
+              onCycleSort={() => setSort((s) => SORT_ORDER[(SORT_ORDER.indexOf(s) + 1) % SORT_ORDER.length])}
+              filtered={query.trim().length > 0}
+            />
           </ScrollView>
         </>
       )}
       <BottomBar active="shelf" />
+      <ProgressSheet
+        book={progressBook}
+        onClose={() => setProgressBook(null)}
+        onUpdate={(pagesRead) => {
+          if (progressBook) updateBook(progressBook.id, { pagesRead });
+          setProgressBook(null);
+        }}
+        onFinish={finishReading}
+      />
     </SafeAreaView>
   );
 }
 
-function Header() {
+function Header({ searchOpen, onToggleSearch }: { searchOpen: boolean; onToggleSearch: () => void }) {
   const navigation = useNavigation<Nav>();
   return (
     <View style={styles.header}>
@@ -43,8 +124,14 @@ function Header() {
         <Text style={styles.h2}>The Shelf</Text>
       </View>
       <View style={styles.headerActions}>
-        <TouchableOpacity style={styles.iconBtn} accessibilityLabel="Search" accessibilityRole="button">
-          <SearchIcon color={color.text} />
+        <TouchableOpacity
+          style={[styles.iconBtn, searchOpen && styles.iconBtnActive]}
+          accessibilityLabel="Search"
+          accessibilityRole="button"
+          accessibilityState={{ selected: searchOpen }}
+          onPress={onToggleSearch}
+        >
+          <SearchIcon color={searchOpen ? color.accent : color.text} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.iconBtn}
@@ -53,6 +140,14 @@ function Header() {
           onPress={() => navigation.navigate('Year')}
         >
           <YearIcon color={color.text} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.iconBtn}
+          accessibilityLabel="Settings"
+          accessibilityRole="button"
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <GearIcon color={color.text} />
         </TouchableOpacity>
       </View>
     </View>
@@ -92,6 +187,7 @@ function StatsRow({ books }: { books: Book[] }) {
   const totalPages = books.reduce((sum, b) => sum + b.pages, 0);
   const now = new Date();
   const thisMonth = books.filter((b) => {
+    if (!b.finishedAt) return false;
     const d = new Date(b.finishedAt);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   }).length;
@@ -113,62 +209,96 @@ function StatCell({ value, label, divider }: { value: string; label: string; div
   );
 }
 
-function ReadingNow({ reading }: { reading: ReadingBook[] }) {
+function ReadingNow({ reading, onPress }: { reading: Book[]; onPress: (b: Book) => void }) {
   return (
     <View>
       <View style={styles.sectionHeadRow}>
         <Text style={styles.sectionLabel}>Reading now</Text>
-        <Text style={styles.sectionAside}>{reading.length} books</Text>
+        <Text style={styles.sectionAside}>
+          {reading.length} {reading.length === 1 ? 'book' : 'books'}
+        </Text>
       </View>
-      <View style={styles.readingRow}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.readingRow}>
         {reading.map((b) => {
-          const pct = Math.round((b.pagesRead / b.pages) * 100);
+          const pct = b.pages > 0 ? Math.min(100, Math.round((b.pagesRead / b.pages) * 100)) : 0;
           return (
-            <View key={b.id} style={styles.readingCard}>
-              <CoverPlate style={styles.readingPlate} />
+            <TouchableOpacity
+              key={b.id}
+              style={styles.readingCard}
+              accessibilityRole="button"
+              accessibilityLabel={`Update progress for ${b.title}`}
+              onPress={() => onPress(b)}
+            >
+              <CoverPlate style={styles.readingPlate} imageUri={b.coverUri ?? undefined} />
               <View style={styles.readingInfo}>
                 <Text style={styles.readingTitle} numberOfLines={1}>
                   {b.title}
                 </Text>
                 <Text style={styles.readingProgress}>
-                  {b.pagesRead} / {b.pages} pp
+                  {b.pagesRead} / {b.pages || '?'} pp
                 </Text>
                 <View style={styles.progressTrack}>
                   <View style={[styles.progressFill, { width: `${pct}%` }]} />
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
     </View>
   );
 }
 
-function EnshrinedGrid({ books }: { books: Book[] }) {
+function EnshrinedGrid({
+  books,
+  total,
+  sortLabel,
+  onCycleSort,
+  filtered,
+}: {
+  books: Book[];
+  total: number;
+  sortLabel: string;
+  onCycleSort: () => void;
+  filtered: boolean;
+}) {
   const navigation = useNavigation<Nav>();
-  const monthLabel = books.length > 0 ? monthYear(books[0].finishedAt) : '';
+  const heading = filtered
+    ? `${books.length} of ${total} found`
+    : books[0]?.finishedAt
+      ? `Enshrined · ${monthYear(books[0].finishedAt)}`
+      : 'Enshrined';
   return (
     <View>
       <View style={[styles.sectionHeadRow, styles.enshrinedHeadRow]}>
-        <Text style={styles.sectionLabel}>Enshrined · {monthLabel}</Text>
-        <Text style={styles.sectionAside}>Sort</Text>
-      </View>
-      <View style={styles.grid}>
-        {books.map((b) => (
-          <TouchableOpacity
-            key={b.id}
-            style={styles.gridCell}
-            accessibilityRole="button"
-            onPress={() => navigation.navigate('Detail', { bookId: b.id })}
-          >
-            <CoverPlate style={styles.shelfPlate} elevation="sm" label={b.coverUri ? undefined : 'cover photo'} imageUri={b.coverUri ?? undefined} />
-            <View style={styles.plateRule} />
-            <Text style={styles.bookTitle}>{b.title}</Text>
-            <Text style={styles.bookAuthor}>{b.author}</Text>
+        <Text style={styles.sectionLabel}>{heading}</Text>
+        {total > 0 ? (
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Sort by ${sortLabel}`} onPress={onCycleSort}>
+            <Text style={styles.sectionAside}>Sort · {sortLabel}</Text>
           </TouchableOpacity>
-        ))}
+        ) : null}
       </View>
+      {total === 0 ? (
+        <Text style={styles.gridEmpty}>Nothing enshrined yet — finish a book to give it a plate.</Text>
+      ) : books.length === 0 ? (
+        <Text style={styles.gridEmpty}>No matches.</Text>
+      ) : (
+        <View style={styles.grid}>
+          {books.map((b) => (
+            <TouchableOpacity
+              key={b.id}
+              style={styles.gridCell}
+              accessibilityRole="button"
+              onPress={() => navigation.navigate('Detail', { bookId: b.id })}
+            >
+              <CoverPlate style={styles.shelfPlate} elevation="sm" label={b.coverUri ? undefined : 'cover photo'} imageUri={b.coverUri ?? undefined} />
+              <View style={styles.plateRule} />
+              <Text style={styles.bookTitle}>{b.title}</Text>
+              <Text style={styles.bookAuthor}>{b.author}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -219,6 +349,30 @@ const styles = StyleSheet.create({
     borderColor: color.divider,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  iconBtnActive: {
+    borderColor: color.accent,
+  },
+  searchInput: {
+    marginHorizontal: 20,
+    marginTop: 10,
+    minHeight: 38,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontFamily: font.body,
+    fontSize: 14,
+    color: color.text,
+    borderWidth: 1,
+    borderColor: color.accent,
+    borderRadius: radius.md,
+  },
+  gridEmpty: {
+    fontFamily: font.body,
+    fontStyle: 'italic',
+    fontSize: 13,
+    color: color.textMuted60,
+    paddingVertical: 12,
+    paddingBottom: 24,
   },
   statsRow: {
     flexDirection: 'row',
@@ -282,10 +436,10 @@ const styles = StyleSheet.create({
   readingRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 20,
+    paddingBottom: 20,
   },
   readingCard: {
-    flex: 1,
+    width: 176,
     flexDirection: 'row',
     gap: 10,
     alignItems: 'flex-start',

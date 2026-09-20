@@ -1,4 +1,5 @@
 import { Book } from '../types';
+import { daysBetween } from './inscriptions';
 
 const MONTH_LETTERS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 
@@ -11,7 +12,10 @@ export type YearStats = {
 };
 
 export function computeYearStats(books: Book[], year: number): YearStats {
-  const inYear = books.filter((b) => new Date(b.finishedAt).getFullYear() === year);
+  const inYear = books.filter(
+    (b): b is Book & { finishedAt: string } =>
+      b.status === 'finished' && !!b.finishedAt && new Date(b.finishedAt).getFullYear() === year
+  );
 
   const monthCounts = new Array(12).fill(0);
   inYear.forEach((b) => {
@@ -38,15 +42,16 @@ export function computeYearStats(books: Book[], year: number): YearStats {
     const longest = inYear.reduce((a, b) => (b.pages > a.pages ? b : a));
     notables.push({ k: 'Longest', v: `${longest.title}, ${longest.pages} pp` });
 
-    const withDays = inYear.map((b) => ({
-      b,
-      days: Math.max(
-        1,
-        Math.round((new Date(b.finishedAt).getTime() - new Date(b.startedAt).getTime()) / (1000 * 60 * 60 * 24))
-      ),
-    }));
-    const fastest = withDays.reduce((a, c) => (c.days < a.days ? c : a));
-    notables.push({ k: 'Finished fastest', v: `${fastest.b.title}, ${fastest.days} day${fastest.days === 1 ? '' : 's'}` });
+    // Only books that were tracked from "reading" have a real start date.
+    const withDays: { b: Book; days: number }[] = [];
+    inYear.forEach((b) => {
+      const days = daysBetween(b.startedAt, b.finishedAt);
+      if (days !== null) withDays.push({ b, days });
+    });
+    if (withDays.length > 0) {
+      const fastest = withDays.reduce((a, c) => (c.days < a.days ? c : a));
+      notables.push({ k: 'Finished fastest', v: `${fastest.b.title}, ${fastest.days} day${fastest.days === 1 ? '' : 's'}` });
+    }
 
     const authorCounts = new Map<string, number>();
     inYear.forEach((b) => authorCounts.set(b.author, (authorCounts.get(b.author) ?? 0) + 1));

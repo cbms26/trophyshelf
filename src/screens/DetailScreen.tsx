@@ -1,8 +1,12 @@
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ActionMenu from '../components/ActionMenu';
 import CoverPlate from '../components/CoverPlate';
+import { daysBetween } from '../lib/inscriptions';
+import { sharePlate } from '../lib/sharePlate';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
 import { color, font, radius } from '../theme/tokens';
@@ -10,32 +14,41 @@ import { color, font, radius } from '../theme/tokens';
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Detail'>;
 type Route = RouteProp<RootStackParamList, 'Detail'>;
 
+const fmt = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+
 export default function DetailScreen() {
   const navigation = useNavigation<Nav>();
   const { params } = useRoute<Route>();
-  const { books } = useBooks();
+  const { books, deleteBook } = useBooks();
   const book = books.find((b) => b.id === params.bookId);
+  const plateRef = useRef<View>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (!book) return null;
 
-  const started = new Date(book.startedAt);
-  const finished = new Date(book.finishedAt);
-  const days = Math.max(1, Math.round((finished.getTime() - started.getTime()) / (1000 * 60 * 60 * 24)));
-
-  const share = () => {
-    Share.share({
-      message: `${book.title} — ${book.author}\n\n"${book.inscription}"\n\nEnshrined on TrophyShelf.`,
-    }).catch(() => {});
-  };
-
-  const fmt = (d: Date) => d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  const days = daysBetween(book.startedAt, book.finishedAt);
 
   const detailRows = [
-    { k: 'Enshrined', v: fmt(finished) },
-    { k: 'Started', v: fmt(started) },
-    { k: 'Time to finish', v: `${days} day${days === 1 ? '' : 's'}` },
-    { k: 'Volume', v: `No. ${book.volume}` },
-  ];
+    book.finishedAt ? { k: 'Enshrined', v: fmt(book.finishedAt) } : null,
+    book.startedAt ? { k: 'Started', v: fmt(book.startedAt) } : null,
+    days !== null ? { k: 'Time to finish', v: `${days} day${days === 1 ? '' : 's'}` } : null,
+    book.volume !== null ? { k: 'Volume', v: `No. ${book.volume}` } : null,
+  ].filter((r): r is { k: string; v: string } => r !== null);
+
+  const confirmDelete = () => {
+    Alert.alert('Remove from the shelf?', `${book.title} will be taken off the shelf. This can't be undone.`, [
+      { text: 'Keep it', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: () => {
+          deleteBook(book.id);
+          navigation.goBack();
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
@@ -48,24 +61,41 @@ export default function DetailScreen() {
         >
           <Text style={styles.iconGlyph}>‹</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconBtn} accessibilityRole="button" accessibilityLabel="Share" onPress={share}>
-          <Text style={styles.iconGlyph}>↑</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.iconBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Share"
+            onPress={() => sharePlate(book, plateRef)}
+          >
+            <Text style={styles.iconGlyph}>↑</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconBtn}
+            accessibilityRole="button"
+            accessibilityLabel="More"
+            onPress={() => setMenuOpen(true)}
+          >
+            <Text style={styles.iconGlyph}>⋯</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <CoverPlate style={styles.plate} elevation="md" imageUri={book.coverUri ?? undefined} label={book.coverUri ? undefined : 'cover photo'} />
-        <View style={styles.titleBlock}>
-          <Text style={styles.title}>{book.title}</Text>
-          <Text style={styles.author}>{book.author}</Text>
-        </View>
-        <View style={styles.tags}>
-          <Tag label={book.genre} accent />
-          <Tag label={`${book.pages} pages`} />
-          <Tag label={`${days} days`} />
-        </View>
-        <View style={styles.inscriptionBox}>
-          <Text style={styles.inscriptionKicker}>The inscription</Text>
-          <Text style={styles.inscriptionText}>{book.inscription}</Text>
+        <View ref={plateRef} collapsable={false} style={styles.plateCard}>
+          <CoverPlate style={styles.plate} elevation="md" imageUri={book.coverUri ?? undefined} label={book.coverUri ? undefined : 'cover photo'} />
+          <View style={styles.titleBlock}>
+            <Text style={styles.title}>{book.title}</Text>
+            <Text style={styles.author}>{book.author}</Text>
+          </View>
+          <View style={styles.tags}>
+            <Tag label={book.genre} accent />
+            {book.pages > 0 ? <Tag label={`${book.pages} pages`} /> : null}
+            {days !== null ? <Tag label={`${days} day${days === 1 ? '' : 's'}`} /> : null}
+          </View>
+          <View style={styles.inscriptionBox}>
+            <Text style={styles.inscriptionKicker}>The inscription</Text>
+            <Text style={styles.inscriptionText}>{book.inscription}</Text>
+          </View>
         </View>
         <View style={styles.detailRows}>
           {detailRows.map((r) => (
@@ -82,6 +112,15 @@ export default function DetailScreen() {
           </View>
         ) : null}
       </ScrollView>
+      <ActionMenu
+        visible={menuOpen}
+        title={book.title}
+        onClose={() => setMenuOpen(false)}
+        items={[
+          { label: 'Edit details', onPress: () => navigation.navigate('Confirm', { mode: 'edit', bookId: book.id }) },
+          { label: 'Remove from shelf', onPress: confirmDelete, destructive: true },
+        ]}
+      />
     </SafeAreaView>
   );
 }
@@ -118,6 +157,16 @@ const styles = StyleSheet.create({
   iconGlyph: {
     fontSize: 18,
     color: color.text,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  plateCard: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    backgroundColor: color.bg,
+    paddingTop: 4,
   },
   scrollContent: {
     paddingHorizontal: 24,
