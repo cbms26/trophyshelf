@@ -74,12 +74,9 @@ export async function guardRequest(req: Request): Promise<NextResponse | null> {
       rl.day.limit(ip),
     ]);
     if (!minute.success || !day.success) {
-      const retryAfter = Math.max(
-        1,
-        Math.ceil(
-          (Math.max(minute.reset, day.reset) - Date.now()) / 1000
-        )
-      );
+      const failed = [minute, day].filter((r) => !r.success);
+      const resetAt = Math.max(...failed.map((r) => r.reset));
+      const retryAfter = Math.max(1, Math.ceil((resetAt - Date.now()) / 1000));
       return NextResponse.json(
         { ok: false, error: "Too many requests. Try again shortly." },
         { status: 429, headers: { "Retry-After": String(retryAfter) } }
