@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "TrophyShelf",
+    "slug": "trophyshelf",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "TrophyShelf uses the camera to photograph a book's cover so it can be enshrined on your shelf."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "TrophyShelf uses your photo library so you can pick an existing cover photo to enshrine."
+        }
+      ]
+    ]
+  }
+}

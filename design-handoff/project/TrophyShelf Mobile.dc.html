@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="stylesheet" href="_ds/classical-2d2dfb9a-060a-4a52-ac6c-3ec3bb9b05ce/styles.css"><style>body{margin:0;background:#f3f2f2}.dv-turn{padding:44px 48px 36px;border-bottom:1px solid var(--color-divider)}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-neutral-900);color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font-family:var(--font-heading);font-weight:600;font-size:15px;color:var(--color-text)}.dv-opts{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-accent-100);color:var(--color-accent-800);border-radius:4px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font-size:12px;color:color-mix(in srgb,var(--color-text) 60%,transparent)}.dv-opt:target .dv-oid{background:var(--color-accent);color:#fff}.dv-row{display:flex;gap:18px;align-items:flex-start}.dv-next{margin:26px 0 0;font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)}a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}.tnum{font-variant-numeric:tabular-nums}</style></helmet>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">TrophyShelf, rethought as a mobile app</span></div>
+<div style="max-width:760px;margin:0 0 30px">
+<p style="font-size:13px;line-height:1.7;text-align:justify;color:color-mix(in srgb,var(--color-text) 72%,transparent)">The web build dresses finished books as sports trophies — dark walnut, brass plates, gold confetti. On a phone that reads as chrome rather than content: the covers, which are the only thing a reader actually wants to look at, end up framed in gold and shrunk to thumbnails. This rethink keeps the idea (a finished book is an achievement worth enshrining) but changes the metaphor from trophy cabinet to <em>private library</em> — the Classical system's tipped-in plate, hairline rules and gold-as-stroke. Covers get the space; gold marks the moment, never the whole surface.</p>
+<p style="font-size:13px;line-height:1.7;text-align:justify;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Three shelf metaphors below, plus the full capture flow, the plaque moment, onboarding, the reading year, and one Android adaptation. Assumptions, since you want this production-bound: accounts and cloud sync exist (you unlocked them), so the shelf survives a lost phone; a currently-reading row sits above the shelf; every trophy can be shared as a card. Storage moves off localStorage to a real backend — <a href="#1i">1i</a> notes the stack I'd pick.</p>
+</div>
+
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Shelf — plate grid. The default. Covers matted like book plates, gold only in the rules.</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg)">
+<div style="padding:60px 20px 12px;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--color-divider)">
+<div>
+<div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-accent);margin-bottom:4px">Est. 2026</div>
+<h2 style="margin:0;font-size:30px;letter-spacing:-.02em">The Shelf</h2>
+</div>
+<div style="display:flex;gap:6px">
+<button class="btn btn-icon btn-secondary" aria-label="Search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+<button class="btn btn-icon btn-secondary" aria-label="Reading year"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 20h18M7 20V10M12 20V4M17 20v-7"></path></svg></button>
+</div>
+</div>
+<div style="display:flex;gap:0;border-bottom:1px solid var(--color-divider)">
+<div style="flex:1;padding:10px 20px;border-right:1px solid var(--color-divider)"><div class="tnum" style="font-family:var(--font-heading);font-size:22px;line-height:1">24</div><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Volumes</div></div>
+<div style="flex:1;padding:10px 20px;border-right:1px solid var(--color-divider)"><div class="tnum" style="font-family:var(--font-heading);font-size:22px;line-height:1">7,310</div><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Pages</div></div>
+<div style="flex:1;padding:10px 20px"><div class="tnum" style="font-family:var(--font-heading);font-size:22px;line-height:1">3</div><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">This month</div></div>
+</div>
+<div style="flex:1;overflow:auto;padding:16px 20px 0">
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px">
+<span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Reading now</span>
+<span style="font-size:11px;color:var(--color-accent-700)">2 books</span>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:20px">
+<sc-for list="{{ reading }}" as="b" hint-placeholder-count="2">
+<div style="flex:1;display:flex;gap:10px;align-items:flex-start;border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:8px">
+<div class="plate" style="width:36px;height:54px;flex:none;background:repeating-linear-gradient(45deg,var(--color-neutral-300),var(--color-neutral-300) 4px,var(--color-neutral-200) 4px,var(--color-neutral-200) 8px)"></div>
+<div style="min-width:0">
+<div style="font-family:var(--font-heading);font-size:13px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ b.title }}</div>
+<div class="tnum" style="font-size:10px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">{{ b.progress }}</div>
+<div style="height:2px;background:var(--color-neutral-200);margin-top:6px"><div style="height:2px;width:{{ b.pct }};background:var(--color-accent)"></div></div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="border-top:1px solid var(--color-divider);padding-top:14px;margin-bottom:10px;display:flex;align-items:baseline;justify-content:space-between">
+<span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Enshrined · September</span>
+<span style="font-size:11px;color:var(--color-accent-700)">Sort</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 16px;padding-bottom:20px">
+<sc-for list="{{ shelf }}" as="b" hint-placeholder-count="6">
+<div>
+<div class="plate elev-sm" style="aspect-ratio:2/3;background:repeating-linear-gradient(45deg,var(--color-neutral-300),var(--color-neutral-300) 6px,var(--color-neutral-200) 6px,var(--color-neutral-200) 12px);display:flex;align-items:center;justify-content:center;padding:8px">
+<span style="font:400 9px/1.4 ui-monospace,Menlo,monospace;color:var(--color-neutral-700);text-align:center">cover photo</span>
+</div>
+<div style="height:1px;background:var(--color-accent);opacity:.5;margin:8px 0 6px"></div>
+<div style="font-family:var(--font-heading);font-weight:600;font-size:14px;line-height:1.15">{{ b.title }}</div>
+<div style="font-size:11px;font-style:italic;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin-top:2px">{{ b.author }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="border-top:1px solid var(--color-divider);background:var(--color-bg);padding:10px 24px 30px;display:flex;align-items:center;justify-content:space-between">
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--color-accent);min-width:56px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-1.5Z"></path><path d="M9 3v18"></path></svg><span style="font-size:10px;letter-spacing:.06em">Shelf</span></div>
+<button class="btn btn-primary" style="border-radius:9999px;padding:10px 18px;gap:7px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"></path><circle cx="12" cy="13" r="3"></circle></svg>Enshrine</button>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:color-mix(in srgb,var(--color-text) 50%,transparent);min-width:56px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg><span style="font-size:10px;letter-spacing:.06em">Year</span></div>
+</div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Shelf — spines. Books stand as spines on real shelves; tap one to pull it out.</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg)">
+<div style="padding:60px 20px 14px;border-bottom:1px solid var(--color-divider);display:flex;align-items:flex-end;justify-content:space-between">
+<h2 style="margin:0;font-size:30px;letter-spacing:-.02em">The Shelf</h2>
+<span class="tnum" style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">24 vols · 7,310 pp</span>
+</div>
+<div style="flex:1;overflow:auto;padding:20px 20px 0">
+<sc-for list="{{ shelves }}" as="s" hint-placeholder-count="3">
+<div style="margin-bottom:26px">
+<div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-bottom:8px">{{ s.label }}</div>
+<div style="display:flex;align-items:flex-end;gap:5px;height:196px">
+<sc-for list="{{ s.books }}" as="b" hint-placeholder-count="5">
+<div style="width:{{ b.w }};height:{{ b.h }};background:{{ b.bg }};border-radius:1px 3px 3px 1px;display:flex;align-items:center;justify-content:center;padding:10px 0;box-shadow:var(--shadow-sm);border-right:1px solid rgba(0,0,0,.14)">
+<span style="writing-mode:vertical-rl;font-family:var(--font-heading);font-weight:600;font-size:12px;letter-spacing:.02em;color:{{ b.ink }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:100%">{{ b.title }}</span>
+</div>
+</sc-for>
+<div style="flex:1;height:60px;border:1px dashed var(--color-divider);border-radius:2px;display:flex;align-items:center;justify-content:center;min-width:34px;color:var(--color-accent)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></div>
+</div>
+<div style="height:3px;background:linear-gradient(180deg,var(--color-neutral-400),var(--color-neutral-300));border-radius:1px"></div>
+<div style="height:8px;background:linear-gradient(180deg,color-mix(in srgb,var(--color-neutral-900) 10%,transparent),transparent)"></div>
+</div>
+</sc-for>
+</div>
+<div style="border-top:1px solid var(--color-divider);padding:12px 24px 32px;display:flex;justify-content:center">
+<button class="btn btn-primary btn-block" style="max-width:260px;padding:12px;border-radius:9999px">Enshrine a finished book</button>
+</div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Shelf — the index. A reading ledger: numbered, dated, tabular. No covers at all.</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg)">
+<div style="padding:60px 20px 12px">
+<h2 style="margin:0 0 12px;font-size:30px;letter-spacing:-.02em">Index of Volumes</h2>
+<div class="seg" style="width:100%">
+<label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="shelfview"><span>Plates</span></label>
+<label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="shelfview" checked><span>Index</span></label>
+<label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="shelfview"><span>Year</span></label>
+</div>
+</div>
+<div style="flex:1;overflow:auto;padding:6px 20px 0">
+<sc-for list="{{ ledger }}" as="g" hint-placeholder-count="3">
+<div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--color-text);padding-bottom:5px;margin:16px 0 0">
+<span style="font-family:var(--font-heading);font-size:15px">{{ g.month }}</span>
+<span class="tnum" style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ g.meta }}</span>
+</div>
+<sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+<span class="tnum" style="font-size:11px;color:var(--color-accent);width:22px;flex:none">{{ r.n }}</span>
+<div style="flex:1;min-width:0">
+<div style="font-family:var(--font-heading);font-weight:600;font-size:15px;line-height:1.2">{{ r.title }}</div>
+<div style="font-size:11px;font-style:italic;color:color-mix(in srgb,var(--color-text) 60%,transparent)">{{ r.author }}</div>
+</div>
+<span class="tnum" style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ r.pages }}</span>
+</div>
+</sc-for>
+</div>
+</sc-for>
+<div style="height:24px"></div>
+</div>
+<div style="border-top:1px solid var(--color-divider);padding:12px 24px 32px;display:flex;justify-content:center">
+<button class="btn btn-primary btn-block" style="max-width:260px;padding:12px;border-radius:9999px">Enshrine a finished book</button>
+</div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Capture → read → confirm. Three states of the add flow.</div>
+<div class="dv-row">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-neutral-900)">
+<div style="padding:58px 20px 0;display:flex;align-items:center;justify-content:space-between;color:var(--color-neutral-100)">
+<button class="btn btn-icon" style="color:var(--color-neutral-100)" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+<span style="font-family:var(--font-heading);font-size:15px">Photograph the cover</span>
+<button class="btn btn-icon" style="color:var(--color-neutral-100)" aria-label="Library"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-4.5-4.5L7 21"></path></svg></button>
+</div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px">
+<div style="position:relative;width:236px;aspect-ratio:2/3;background:repeating-linear-gradient(45deg,#3a3835,#3a3835 7px,#333130 7px,#333130 14px);display:flex;align-items:center;justify-content:center">
+<span style="font:400 10px/1.5 ui-monospace,Menlo,monospace;color:var(--color-neutral-500)">live camera</span>
+<div style="position:absolute;inset:-14px;border:1px solid var(--color-accent);opacity:.9;clip-path:polygon(0 0,34px 0,34px 1px,1px 1px,1px 34px,0 34px,0 100%,34px 100%,34px calc(100% - 1px),1px calc(100% - 1px),1px calc(100% - 34px),0 calc(100% - 34px),0 0,100% 0,100% 34px,calc(100% - 1px) 34px,calc(100% - 1px) 1px,calc(100% - 34px) 1px,calc(100% - 34px) 0,100% 0,100% 100%,calc(100% - 34px) 100%,calc(100% - 34px) calc(100% - 1px),calc(100% - 1px) calc(100% - 1px),calc(100% - 1px) calc(100% - 34px),100% calc(100% - 34px))"></div>
+</div>
+</div>
+<div style="padding:0 20px 44px;display:flex;flex-direction:column;align-items:center;gap:20px">
+<p style="margin:0;font-size:12px;color:var(--color-neutral-400);text-align:center">Fill the frame with the front cover. Glare is fine — the reader is forgiving.</p>
+<div style="display:flex;align-items:center;gap:36px">
+<span style="font-size:12px;color:var(--color-neutral-400)">Library</span>
+<div style="width:68px;height:68px;border-radius:50%;border:1px solid var(--color-accent);display:flex;align-items:center;justify-content:center"><div style="width:56px;height:56px;border-radius:50%;background:var(--color-accent)"></div></div>
+<span style="font-size:12px;color:var(--color-neutral-400)">ISBN</span>
+</div>
+</div>
+</div>
+</x-import>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg);padding:58px 24px 34px;box-sizing:border-box;align-items:center;justify-content:center;gap:26px">
+<div class="plate elev-md" style="width:180px;aspect-ratio:2/3;background:repeating-linear-gradient(45deg,var(--color-neutral-300),var(--color-neutral-300) 6px,var(--color-neutral-200) 6px,var(--color-neutral-200) 12px);display:flex;align-items:center;justify-content:center"><span style="font:400 9px ui-monospace,Menlo,monospace;color:var(--color-neutral-700)">captured cover</span></div>
+<div style="text-align:center;max-width:250px">
+<h3 style="margin:0 0 6px;font-size:22px">Reading the cover…</h3>
+<p style="margin:0;font-size:12px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 60%,transparent)">Pulling the title, author, genre and page count. You'll get to correct anything it misreads.</p>
+</div>
+<div style="width:180px;height:1px;background:var(--color-neutral-300);position:relative;overflow:hidden"><div style="position:absolute;left:0;top:0;height:1px;width:64px;background:var(--color-accent)"></div></div>
+<div style="display:flex;flex-direction:column;gap:8px;width:210px">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:{{ s.color }}">
+<span style="width:14px;flex:none;text-align:center;color:var(--color-accent)">{{ s.mark }}</span>{{ s.label }}
+</div>
+</sc-for>
+</div>
+</div>
+</x-import>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg)">
+<div style="padding:58px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-divider)">
+<button class="btn btn-ghost" style="font-size:13px">Retake</button>
+<span style="font-family:var(--font-heading);font-size:15px">Confirm the details</span>
+<span style="width:52px"></span>
+</div>
+<div style="flex:1;overflow:auto;padding:16px 20px 0">
+<div style="display:flex;gap:14px;margin-bottom:18px">
+<div class="plate" style="width:88px;aspect-ratio:2/3;flex:none;background:repeating-linear-gradient(45deg,var(--color-neutral-300),var(--color-neutral-300) 6px,var(--color-neutral-200) 6px,var(--color-neutral-200) 12px)"></div>
+<div style="flex:1">
+<span class="tag tag-outline" style="margin-bottom:8px">Read from the cover</span>
+<p style="margin:8px 0 0;font-size:12px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Check each field. Covers lie, and the reader misreads decorative type more often than plain.</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
+<div class="field">
+<label>{{ f.label }}</label>
+<div class="input" style="display:flex;align-items:center;min-height:38px">{{ f.value }}</div>
+</div>
+</sc-for>
+<div class="field">
+<label>Finished on</label>
+<div class="input tnum" style="display:flex;align-items:center;justify-content:space-between;min-height:38px">20 September 2026<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 11h18"></path></svg></div>
+</div>
+<div class="field">
+<label>A note to your future self <span style="opacity:.6">(optional)</span></label>
+<div class="input" style="min-height:62px;font-style:italic;color:color-mix(in srgb,var(--color-text) 45%,transparent)">Read on the train, mostly.</div>
+</div>
+</div>
+<div style="height:20px"></div>
+</div>
+<div style="border-top:1px solid var(--color-divider);padding:12px 20px 32px;display:flex;gap:10px">
+<button class="btn btn-secondary" style="flex:1;padding:12px">Discard</button>
+<button class="btn btn-primary" style="flex:2;padding:12px">Enshrine it</button>
+</div>
+</div>
+</x-import>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>The moment + the plaque. Celebration is a struck seal and a written inscription, not confetti.</div>
+<div class="dv-row">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;background:var(--color-neutral-900);padding:58px 30px 40px;box-sizing:border-box;text-align:center">
+<div style="width:112px;height:112px;border-radius:50%;border:1px solid var(--color-accent);display:flex;align-items:center;justify-content:center;position:relative">
+<div style="position:absolute;inset:9px;border-radius:50%;border:1px solid color-mix(in srgb,var(--color-accent) 45%,transparent)"></div>
+<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c28d41" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+</div>
+<div>
+<div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-accent);margin-bottom:10px">Volume the twenty-fifth</div>
+<h2 style="margin:0 0 8px;font-size:34px;font-weight:400;color:var(--color-neutral-100);line-height:1.1">Piranesi</h2>
+<p style="margin:0;font-size:13px;font-style:italic;color:var(--color-neutral-400)">Susanna Clarke · 272 pages</p>
+</div>
+<p style="margin:0;font-size:13px;line-height:1.75;color:var(--color-neutral-300);max-width:262px;font-style:italic;text-wrap:pretty">"You walked the halls and the tides did not take you. A strange, kind book, finished in eleven days — the house keeps your name now."</p>
+<div style="display:flex;flex-direction:column;gap:9px;width:236px">
+<button class="btn" style="border:1px solid var(--color-accent-400);color:var(--color-accent-300);padding:12px">Place it on the shelf</button>
+<button class="btn" style="color:var(--color-neutral-400);padding:8px">Share this plate</button>
+</div>
+</div>
+</x-import>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg)">
+<div style="padding:58px 20px 10px;display:flex;align-items:center;justify-content:space-between">
+<button class="btn btn-icon btn-secondary" aria-label="Back"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+<div style="display:flex;gap:6px">
+<button class="btn btn-icon btn-secondary" aria-label="Share"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"></path><path d="m7 8 5-5 5 5"></path><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"></path></svg></button>
+<button class="btn btn-icon btn-secondary" aria-label="More"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg></button>
+</div>
+</div>
+<div style="flex:1;overflow:auto;padding:4px 24px 0;display:flex;flex-direction:column;align-items:center">
+<div class="plate elev-md" style="width:172px;aspect-ratio:2/3;background:repeating-linear-gradient(45deg,var(--color-neutral-300),var(--color-neutral-300) 6px,var(--color-neutral-200) 6px,var(--color-neutral-200) 12px);display:flex;align-items:center;justify-content:center"><span style="font:400 9px ui-monospace,Menlo,monospace;color:var(--color-neutral-700)">cover photo</span></div>
+<div style="text-align:center;margin-top:16px">
+<h2 style="margin:0 0 4px;font-size:27px;line-height:1.1">Piranesi</h2>
+<p style="margin:0;font-size:13px;font-style:italic;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Susanna Clarke</p>
+</div>
+<div style="display:flex;gap:7px;margin:12px 0 18px"><span class="tag tag-accent">Fantasy</span><span class="tag tag-neutral tnum">272 pages</span><span class="tag tag-neutral">11 days</span></div>
+<div style="width:100%;border-top:1px solid var(--color-text);border-bottom:1px solid var(--color-text);padding:18px 16px;text-align:center">
+<div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-accent);margin-bottom:10px">The inscription</div>
+<p style="margin:0;font-size:14px;line-height:1.8;font-style:italic;text-wrap:pretty">You walked the halls and the tides did not take you. A strange, kind book, finished in eleven days — the house keeps your name now.</p>
+</div>
+<div style="width:100%;margin-top:16px">
+<sc-for list="{{ detailRows }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--color-divider);font-size:12px">
+<span style="color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ r.k }}</span><span class="tnum">{{ r.v }}</span>
+</div>
+</sc-for>
+</div>
+<div style="width:100%;margin:16px 0 26px">
+<div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-bottom:8px">Your note</div>
+<p style="margin:0;font-size:13px;line-height:1.7;font-style:italic;text-align:justify;color:color-mix(in srgb,var(--color-text) 75%,transparent)">Read on the train, mostly. Finished it standing up on the platform at Redfern because there were nine pages left and I couldn't wait.</p>
+</div>
+</div>
+</div>
+</x-import>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>First run — empty shelf and onboarding. Sells the concept before asking for a photo.</div>
+<div class="dv-row">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg);padding:58px 30px 40px;box-sizing:border-box">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:30px">
+<div style="display:flex;align-items:flex-end;gap:5px;height:150px;opacity:.55">
+<div style="width:26px;height:120px;border:1px solid var(--color-neutral-400);border-radius:1px 3px 3px 1px"></div>
+<div style="width:22px;height:138px;border:1px solid var(--color-neutral-400);border-radius:1px 3px 3px 1px"></div>
+<div style="width:30px;height:106px;border:1px solid var(--color-neutral-400);border-radius:1px 3px 3px 1px"></div>
+<div style="flex:1;height:1px"></div>
+</div>
+<div style="height:3px;background:var(--color-neutral-300);margin-top:-30px"></div>
+<div>
+<div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-accent);margin-bottom:10px">Nothing here yet</div>
+<h2 style="margin:0 0 10px;font-size:32px;font-weight:400;line-height:1.1">A shelf is built<br>one finished book<br>at a time.</h2>
+<p style="margin:0;font-size:13px;line-height:1.75;text-align:justify;color:color-mix(in srgb,var(--color-text) 65%,transparent)">Photograph the cover of something you've finished — this year, last year, in school. It gets a plate, a date and an inscription written for that book alone.</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<button class="btn btn-primary btn-block" style="padding:13px">Enshrine your first book</button>
+<button class="btn btn-ghost btn-block" style="padding:9px">Import from Goodreads or a CSV</button>
+</div>
+</div>
+</x-import>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg);padding:58px 30px 40px;box-sizing:border-box">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;gap:5px"><div style="width:20px;height:2px;background:var(--color-accent)"></div><div style="width:20px;height:2px;background:var(--color-neutral-300)"></div><div style="width:20px;height:2px;background:var(--color-neutral-300)"></div></div>
+<button class="btn btn-ghost" style="font-size:12px">Skip</button>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:24px">
+<div class="plate elev-lg" style="width:150px;aspect-ratio:2/3;align-self:center;background:repeating-linear-gradient(45deg,var(--color-neutral-300),var(--color-neutral-300) 6px,var(--color-neutral-200) 6px,var(--color-neutral-200) 12px);display:flex;align-items:center;justify-content:center;transform:rotate(-2deg)"><span style="font:400 9px ui-monospace,Menlo,monospace;color:var(--color-neutral-700)">cover photo</span></div>
+<div style="text-align:center">
+<h2 style="margin:0 0 10px;font-size:30px;font-weight:400;line-height:1.15">Snap it, don't type it</h2>
+<p style="margin:0;font-size:13px;line-height:1.75;color:color-mix(in srgb,var(--color-text) 65%,transparent);text-wrap:pretty">One photo of the cover fills in the title, author, genre and page count. Fix anything it gets wrong — it takes about eight seconds.</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<button class="btn btn-primary btn-block" style="padding:13px">Next</button>
+<p style="margin:0;text-align:center;font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Photos are processed on our servers and stored with your account.</p>
+</div>
+</div>
+</x-import>
+</div>
+</div>
+
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>The reading year. Stats as an editorial page, not a dashboard.</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg)">
+<div style="padding:58px 20px 12px;border-bottom:1px solid var(--color-text)">
+<div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-accent);margin-bottom:6px">Anno 2026</div>
+<h2 style="margin:0;font-size:30px;letter-spacing:-.02em">The Reading Year</h2>
+</div>
+<div style="flex:1;overflow:auto;padding:0 20px">
+<div style="display:flex;border-bottom:1px solid var(--color-divider)">
+<div style="flex:1;padding:16px 0"><div class="tnum" style="font-family:var(--font-heading);font-size:40px;line-height:1;font-weight:400">24</div><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:4px">Volumes</div></div>
+<div style="width:1px;background:var(--color-divider)"></div>
+<div style="flex:1;padding:16px 0 16px 18px"><div class="tnum" style="font-family:var(--font-heading);font-size:40px;line-height:1;font-weight:400">7,310</div><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:4px">Pages</div></div>
+</div>
+<div style="padding:18px 0;border-bottom:1px solid var(--color-divider)">
+<div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-bottom:14px">By month</div>
+<div style="display:flex;align-items:flex-end;gap:6px;height:96px">
+<sc-for list="{{ months }}" as="m" hint-placeholder-count="12">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+<div style="width:100%;height:{{ m.h }};border:1px solid var(--color-accent);background:{{ m.fill }}"></div>
+<span class="tnum" style="font-size:8px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ m.label }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="padding:18px 0;border-bottom:1px solid var(--color-divider)">
+<div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-bottom:12px">Where the year went</div>
+<sc-for list="{{ genres }}" as="g" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+<span style="font-size:12px;width:78px;flex:none">{{ g.name }}</span>
+<div style="flex:1;height:7px;border:1px solid var(--color-accent);"><div style="height:5px;width:{{ g.pct }};background:var(--color-accent);opacity:.55"></div></div>
+<span class="tnum" style="font-size:11px;width:20px;text-align:right;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ g.n }}</span>
+</div>
+</sc-for>
+</div>
+<div style="padding:18px 0 28px">
+<div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-bottom:10px">Of note</div>
+<sc-for list="{{ notables }}" as="n" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-divider)">
+<span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent);flex:none">{{ n.k }}</span>
+<span style="font-family:var(--font-heading);font-size:14px;text-align:right">{{ n.v }}</span>
+</div>
+</sc-for>
+<button class="btn btn-primary btn-block" style="padding:12px;margin-top:18px">Share the year as a card</button>
+</div>
+</div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1h">
+<div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>Android. Same system, Material behaviours: FAB, top app bar, wider gutters.</div>
+<x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="412px,892px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg);position:relative">
+<div style="padding:52px 24px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-divider)">
+<h2 style="margin:0;font-size:26px">The Shelf</h2>
+<div style="display:flex;gap:6px">
+<button class="btn btn-icon" aria-label="Search"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+<button class="btn btn-icon" aria-label="Account"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></button>
+</div>
+</div>
+<div style="flex:1;overflow:auto;padding:16px 24px 0">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:22px 18px;padding-bottom:110px">
+<sc-for list="{{ shelf }}" as="b" hint-placeholder-count="6">
+<div>
+<div class="plate elev-sm" style="aspect-ratio:2/3;background:repeating-linear-gradient(45deg,var(--color-neutral-300),var(--color-neutral-300) 6px,var(--color-neutral-200) 6px,var(--color-neutral-200) 12px);display:flex;align-items:center;justify-content:center"><span style="font:400 9px ui-monospace,Menlo,monospace;color:var(--color-neutral-700)">cover photo</span></div>
+<div style="height:1px;background:var(--color-accent);opacity:.5;margin:8px 0 6px"></div>
+<div style="font-family:var(--font-heading);font-weight:600;font-size:14px;line-height:1.15">{{ b.title }}</div>
+<div style="font-size:11px;font-style:italic;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin-top:2px">{{ b.author }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="position:absolute;right:22px;bottom:96px"><button class="btn" style="background:var(--color-accent);color:#fff;border-radius:16px;padding:16px 20px;gap:8px;box-shadow:var(--shadow-lg)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"></path><circle cx="12" cy="13" r="3"></circle></svg>Enshrine</button></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 12px 26px;display:flex;justify-content:space-around;background:var(--color-bg)">
+<sc-for list="{{ androidTabs }}" as="t" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:{{ t.color }}">
+<div style="padding:4px 18px;border-radius:9999px;background:{{ t.pill }}">{{ t.glyph }}</div>{{ t.label }}
+</div>
+</sc-for>
+</div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1i" style="max-width:420px">
+<div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>Stack note — since you asked what to build it on.</div>
+<div class="card" style="padding:var(--space-4);gap:var(--space-3)">
+<sc-for list="{{ stack }}" as="s" hint-placeholder-count="5">
+<div style="border-bottom:1px solid var(--color-divider);padding-bottom:10px">
+<div class="card-kicker">{{ s.k }}</div>
+<div style="font-family:var(--font-heading);font-weight:600;font-size:15px;margin:3px 0 3px">{{ s.pick }}</div>
+<p style="margin:0;font-size:12px;line-height:1.65;color:color-mix(in srgb,var(--color-text) 65%,transparent)">{{ s.why }}</p>
+</div>
+</sc-for>
+<p style="margin:0;font-size:12px;line-height:1.65;color:color-mix(in srgb,var(--color-text) 65%,transparent)">This is a designer's opinion, not an architecture review — worth a second pair of eyes before you commit.</p>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "take <a class="dv-oid" href="#1a">1a</a> forward and drop the rest" · "show <a class="dv-oid" href="#1b">1b</a> with a book pulled off the shelf" · "make the plaque moment in <a class="dv-oid" href="#1e">1e</a> animate"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:1100}}">
+class Component extends DCLogic {
+  renderVals() {
+    const mute = "color-mix(in srgb, var(--color-text) 55%, transparent)";
+    const spine = (title, w, h, bg, ink) => ({ title, w, h, bg, ink });
+    return {
+      reading: [
+        { title: "The Bee Sting", progress: "218 / 656 pp", pct: "33%" },
+        { title: "Orbital", progress: "41 / 136 pp", pct: "30%" },
+      ],
+      shelf: [
+        { title: "Piranesi", author: "Susanna Clarke" },
+        { title: "The Vegetarian", author: "Han Kang" },
+        { title: "Project Hail Mary", author: "Andy Weir" },
+        { title: "A Room of One's Own", author: "Virginia Woolf" },
+        { title: "Stoner", author: "John Williams" },
+        { title: "Klara and the Sun", author: "Kazuo Ishiguro" },
+      ],
+      shelves: [
+        {
+          label: "September 2026",
+          books: [
+            spine("Piranesi", "30px", "188px", "var(--color-neutral-800)", "var(--color-accent-200)"),
+            spine("The Vegetarian", "22px", "172px", "var(--color-accent-700)", "var(--color-accent-100)"),
+            spine("Orbital", "34px", "160px", "var(--color-neutral-200)", "var(--color-neutral-900)"),
+            spine("Stoner", "26px", "180px", "var(--color-accent-300)", "var(--color-accent-900)"),
+          ],
+        },
+        {
+          label: "August 2026",
+          books: [
+            spine("Klara and the Sun", "28px", "176px", "var(--color-neutral-700)", "var(--color-neutral-100)"),
+            spine("The Bee Sting", "38px", "190px", "var(--color-accent-200)", "var(--color-accent-900)"),
+            spine("Trust", "22px", "164px", "var(--color-neutral-900)", "var(--color-accent-300)"),
+            spine("Small Things Like These", "20px", "150px", "var(--color-accent-500)", "#fff"),
+          ],
+        },
+        {
+          label: "July 2026",
+          books: [
+            spine("Demon Copperhead", "36px", "192px", "var(--color-neutral-300)", "var(--color-neutral-900)"),
+            spine("Checkout 19", "24px", "168px", "var(--color-accent-800)", "var(--color-accent-200)"),
+            spine("Pond", "20px", "146px", "var(--color-neutral-600)", "#fff"),
+          ],
+        },
+      ],
+      ledger: [
+        {
+          month: "September 2026",
+          meta: "3 vols · 964 pp",
+          rows: [
+            { n: "24", title: "Piranesi", author: "Susanna Clarke", pages: "272" },
+            { n: "23", title: "The Vegetarian", author: "Han Kang", pages: "188" },
+            { n: "22", title: "Orbital", author: "Samantha Harvey", pages: "136" },
+          ],
+        },
+        {
+          month: "August 2026",
+          meta: "4 vols · 1,412 pp",
+          rows: [
+            { n: "21", title: "Klara and the Sun", author: "Kazuo Ishiguro", pages: "303" },
+            { n: "20", title: "The Bee Sting", author: "Paul Murray", pages: "656" },
+            { n: "19", title: "Trust", author: "Hernan Diaz", pages: "402" },
+            { n: "18", title: "Small Things Like These", author: "Claire Keegan", pages: "116" },
+          ],
+        },
+        {
+          month: "July 2026",
+          meta: "2 vols · 718 pp",
+          rows: [
+            { n: "17", title: "Demon Copperhead", author: "Barbara Kingsolver", pages: "546" },
+            { n: "16", title: "Checkout 19", author: "Claire-Louise Bennett", pages: "172" },
+          ],
+        },
+      ],
+      steps: [
+        { mark: "✓", label: "Cover captured", color: "var(--color-text)" },
+        { mark: "✓", label: "Title and author found", color: "var(--color-text)" },
+        { mark: "·", label: "Writing your inscription", color: mute },
+      ],
+      fields: [
+        { label: "Title", value: "Piranesi" },
+        { label: "Author", value: "Susanna Clarke" },
+        { label: "Genre", value: "Fantasy" },
+        { label: "Pages", value: "272" },
+      ],
+      detailRows: [
+        { k: "Enshrined", v: "20 Sep 2026" },
+        { k: "Started", v: "9 Sep 2026" },
+        { k: "Time to finish", v: "11 days" },
+        { k: "Volume", v: "No. 24" },
+      ],
+      months: [
+        { label: "J", h: "24%", fill: "transparent" },
+        { label: "F", h: "40%", fill: "transparent" },
+        { label: "M", h: "16%", fill: "transparent" },
+        { label: "A", h: "56%", fill: "color-mix(in srgb, var(--color-accent) 22%, transparent)" },
+        { label: "M", h: "32%", fill: "transparent" },
+        { label: "J", h: "48%", fill: "transparent" },
+        { label: "J", h: "40%", fill: "transparent" },
+        { label: "A", h: "80%", fill: "color-mix(in srgb, var(--color-accent) 22%, transparent)" },
+        { label: "S", h: "64%", fill: "color-mix(in srgb, var(--color-accent) 22%, transparent)" },
+        { label: "O", h: "6%", fill: "transparent" },
+        { label: "N", h: "6%", fill: "transparent" },
+        { label: "D", h: "6%", fill: "transparent" },
+      ],
+      genres: [
+        { name: "Literary", pct: "84%", n: "9" },
+        { name: "Fantasy", pct: "56%", n: "6" },
+        { name: "Science", pct: "38%", n: "4" },
+        { name: "Essays", pct: "28%", n: "3" },
+        { name: "Poetry", pct: "18%", n: "2" },
+      ],
+      notables: [
+        { k: "Longest", v: "The Bee Sting, 656 pp" },
+        { k: "Finished fastest", v: "Orbital, 2 days" },
+        { k: "Most-read author", v: "Claire Keegan" },
+        { k: "Best month", v: "August, 5 volumes" },
+      ],
+      androidTabs: [
+        { label: "Shelf", glyph: "▤", color: "var(--color-accent-800)", pill: "var(--color-accent-100)" },
+        { label: "Index", glyph: "≡", color: "color-mix(in srgb, var(--color-text) 55%, transparent)", pill: "transparent" },
+        { label: "Year", glyph: "◫", color: "color-mix(in srgb, var(--color-text) 55%, transparent)", pill: "transparent" },
+      ],
+      stack: [
+        { k: "App", pick: "Expo + React Native", why: "One codebase for both platforms, and the camera, share sheet and haptics you need are first-party. Your existing React knowledge carries over." },
+        { k: "Backend", pick: "Supabase", why: "Postgres, auth, row-level security and image storage in one service. Replaces localStorage without you running servers." },
+        { k: "Vision + inscriptions", pick: "Server-side Gemini via an edge function", why: "Keeps the key off the device and lets you swap models or add rate limits without shipping an app update." },
+        { k: "Covers", pick: "Open Library / Google Books lookup first, photo as fallback", why: "A real cover image beats a phone snapshot on a shelf of plates, and it costs nothing." },
+        { k: "Offline", pick: "Local cache, sync on reconnect", why: "People finish books on planes. The shelf should open with no signal." },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
