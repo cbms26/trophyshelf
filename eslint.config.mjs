@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Separate Expo/React Native app with its own lint setup, not part of
+    // the Next.js project.
+    "mobile/**",
+    // Claude Design handoff bundle: prototype/generated files, not part of
+    // the Next.js app.
+    "design-handoff/**",
   ]),
 ]);
 
