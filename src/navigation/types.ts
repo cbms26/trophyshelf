@@ -5,7 +5,7 @@ export type RootStackParamList = {
   Shelf: undefined;
   Year: undefined;
   Capture: undefined;
-  Analyzing: { photoUri: string | null };
+  Analyzing: { photoUri: string; base64: string };
   Confirm: { photoUri: string | null; detected: DetectedCover };
   Plaque: { bookId: string };
   Detail: { bookId: string };

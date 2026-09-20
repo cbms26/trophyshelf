@@ -5,10 +5,13 @@ import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { downscaleImage } from '../lib/downscaleImage';
 import { RootStackParamList } from '../navigation/types';
 import { color, font } from '../theme/tokens';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Capture'>;
+
+const BLANK_DETECTED = { title: '', author: '', genre: '', pages: 0 };
 
 export default function CaptureScreen() {
   const navigation = useNavigation<Nav>();
@@ -16,18 +19,31 @@ export default function CaptureScreen() {
   const [taking, setTaking] = useState(false);
   const cameraRef = useRef<CameraView>(null);
 
-  const goToAnalyzing = (photoUri: string | null) => {
-    navigation.replace('Analyzing', { photoUri });
+  const goToManualEntry = () => {
+    navigation.navigate('Confirm', { photoUri: null, detected: BLANK_DETECTED });
+  };
+
+  const goToAnalyzing = async (rawUri: string) => {
+    try {
+      const { uri, base64 } = await downscaleImage(rawUri);
+      navigation.replace('Analyzing', { photoUri: uri, base64 });
+    } catch {
+      // Couldn't process the photo (corrupt file, out of memory, etc.) —
+      // don't strand the user, fall through to manual entry.
+      goToManualEntry();
+    }
   };
 
   const takePicture = async () => {
     if (!cameraRef.current || taking) return;
     setTaking(true);
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-      goToAnalyzing(photo?.uri ?? null);
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
+      if (photo?.uri) {
+        await goToAnalyzing(photo.uri);
+      }
     } catch {
-      goToAnalyzing(null);
+      // Camera failed to capture — let the user retry rather than guessing.
     } finally {
       setTaking(false);
     }
@@ -36,12 +52,12 @@ export default function CaptureScreen() {
   const pickFromLibrary = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      quality: 0.7,
+      quality: 0.8,
       allowsEditing: true,
       aspect: [2, 3],
     });
     if (!result.canceled && result.assets?.[0]?.uri) {
-      goToAnalyzing(result.assets[0].uri);
+      await goToAnalyzing(result.assets[0].uri);
     }
   };
 
@@ -109,15 +125,7 @@ export default function CaptureScreen() {
               </View>
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={() =>
-              navigation.navigate('Confirm', {
-                photoUri: null,
-                detected: { title: '', author: '', genre: '', pages: 0 },
-              })
-            }
-          >
+          <TouchableOpacity accessibilityRole="button" onPress={goToManualEntry}>
             <Text style={styles.controlLabel}>ISBN</Text>
           </TouchableOpacity>
         </View>
@@ -125,9 +133,9 @@ export default function CaptureScreen() {
           <TouchableOpacity
             style={styles.sampleBtn}
             accessibilityRole="button"
-            onPress={() => goToAnalyzing(null)}
+            onPress={goToManualEntry}
           >
-            <Text style={styles.sampleLabel}>Continue with a placeholder cover</Text>
+            <Text style={styles.sampleLabel}>Enter details manually instead</Text>
           </TouchableOpacity>
         ) : null}
       </View>
