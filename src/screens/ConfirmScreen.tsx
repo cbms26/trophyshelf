@@ -58,6 +58,12 @@ export default function ConfirmScreen() {
     note: note.trim(),
   });
 
+  const leave = (how: 'retake' | 'discard') => {
+    if (editing) navigation.goBack();
+    else if (how === 'retake') navigation.replace('Capture');
+    else navigation.popToTop();
+  };
+
   const handleSaveEdit = () => {
     if (!editing) return;
     updateBook(editing.id, {
@@ -83,7 +89,7 @@ export default function ConfirmScreen() {
       updatedAt: now,
     };
     addBook(book);
-    navigation.goBack();
+    navigation.popToTop();
   };
 
   const handleEnshrine = async () => {
@@ -123,7 +129,7 @@ export default function ConfirmScreen() {
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.header}>
-          <TouchableOpacity accessibilityRole="button" onPress={() => navigation.goBack()} disabled={saving}>
+          <TouchableOpacity accessibilityRole="button" onPress={() => leave('retake')} disabled={saving}>
             <Text style={styles.retake}>{editing ? 'Cancel' : 'Retake'}</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{editing ? 'Edit the details' : 'Confirm the details'}</Text>
@@ -195,7 +201,7 @@ export default function ConfirmScreen() {
           <TouchableOpacity
             style={styles.discardBtn}
             accessibilityRole="button"
-            onPress={() => navigation.goBack()}
+            onPress={() => leave('discard')}
             disabled={saving}
           >
             <Text style={styles.discardLabel}>{editing ? 'Cancel' : 'Discard'}</Text>

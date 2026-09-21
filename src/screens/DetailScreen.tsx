@@ -1,7 +1,7 @@
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ActionMenu from '../components/ActionMenu';
 import CoverPlate from '../components/CoverPlate';
@@ -24,6 +24,7 @@ export default function DetailScreen() {
   const book = books.find((b) => b.id === params.bookId);
   const plateRef = useRef<View>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   if (!book) return null;
 
@@ -36,18 +37,9 @@ export default function DetailScreen() {
     book.volume !== null ? { k: 'Volume', v: `No. ${book.volume}` } : null,
   ].filter((r): r is { k: string; v: string } => r !== null);
 
-  const confirmDelete = () => {
-    Alert.alert('Remove from the shelf?', `${book.title} will be taken off the shelf. This can't be undone.`, [
-      { text: 'Keep it', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: () => {
-          deleteBook(book.id);
-          navigation.goBack();
-        },
-      },
-    ]);
+  const remove = () => {
+    deleteBook(book.id);
+    navigation.goBack();
   };
 
   return (
@@ -118,8 +110,14 @@ export default function DetailScreen() {
         onClose={() => setMenuOpen(false)}
         items={[
           { label: 'Edit details', onPress: () => navigation.navigate('Confirm', { mode: 'edit', bookId: book.id }) },
-          { label: 'Remove from shelf', onPress: confirmDelete, destructive: true },
+          { label: 'Remove from shelf', onPress: () => setConfirmOpen(true), destructive: true },
         ]}
+      />
+      <ActionMenu
+        visible={confirmOpen}
+        title={`Remove ${book.title}? This can't be undone.`}
+        onClose={() => setConfirmOpen(false)}
+        items={[{ label: 'Remove from shelf', onPress: remove, destructive: true }]}
       />
     </SafeAreaView>
   );

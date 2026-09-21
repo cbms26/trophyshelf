@@ -20,7 +20,7 @@ export default function CaptureScreen() {
   const cameraRef = useRef<CameraView>(null);
 
   const goToManualEntry = () => {
-    navigation.navigate('Confirm', { mode: 'create', photoUri: null, detected: BLANK_DETECTED });
+    navigation.replace('Confirm', { mode: 'create', photoUri: null, detected: BLANK_DETECTED });
   };
 
   const goToAnalyzing = async (rawUri: string) => {
