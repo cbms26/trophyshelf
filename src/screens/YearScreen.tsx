@@ -4,13 +4,14 @@ import BottomBar, { BOTTOM_BAR_CLEARANCE } from '../components/BottomBar';
 import ChatBubble from '../components/ChatBubble';
 import { computeYearStats } from '../lib/yearStats';
 import { useBooks } from '../store/BooksContext';
-import { color, font } from '../theme/tokens';
+import { color, font, gutter, radius, space, type } from '../theme/tokens';
 
 const YEAR = new Date().getFullYear();
 
 export default function YearScreen() {
   const { books } = useBooks();
   const stats = computeYearStats(books, YEAR);
+  const bestMonthCount = Math.max(0, ...stats.months.map((m) => m.count));
 
   const share = () => {
     Share.share({
@@ -21,28 +22,37 @@ export default function YearScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <Text style={styles.kicker}>Anno {YEAR}</Text>
-        <Text style={styles.h2}>The Reading Year</Text>
+        <Text style={styles.h1}>{YEAR}</Text>
+        <Text style={styles.subtitle}>Your reading year</Text>
       </View>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <View style={styles.bigStats}>
           <View style={styles.bigStat}>
             <Text style={styles.bigStatValue}>{stats.volumes}</Text>
-            <Text style={styles.bigStatLabel}>Volumes</Text>
+            <Text style={styles.bigStatLabel}>{stats.volumes === 1 ? 'book finished' : 'books finished'}</Text>
           </View>
-          <View style={styles.bigStatDivider} />
-          <View style={[styles.bigStat, { paddingLeft: 18 }]}>
+          <View style={styles.bigStat}>
             <Text style={styles.bigStatValue}>{stats.pages.toLocaleString()}</Text>
-            <Text style={styles.bigStatLabel}>Pages</Text>
+            <Text style={styles.bigStatLabel}>pages read</Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>By month</Text>
+          <Text style={styles.sectionTitle}>By month</Text>
           <View style={styles.monthsRow}>
             {stats.months.map((m, i) => (
               <View key={i} style={styles.monthCol}>
-                <View style={[styles.monthBar, { height: m.h as any, backgroundColor: m.fill }]} />
+                <View
+                  style={[
+                    styles.monthBar,
+                    m.count > 0
+                      ? {
+                          height: m.h as any,
+                          backgroundColor: m.count === bestMonthCount ? color.accent : color.accentSoft,
+                        }
+                      : styles.monthBarEmpty,
+                  ]}
+                />
                 <Text style={styles.monthLabel}>{m.label}</Text>
               </View>
             ))}
@@ -51,33 +61,39 @@ export default function YearScreen() {
 
         {stats.genres.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Where the year went</Text>
-            {stats.genres.map((g) => (
-              <View key={g.name} style={styles.genreRow}>
-                <Text style={styles.genreName}>{g.name}</Text>
-                <View style={styles.genreTrack}>
-                  <View style={[styles.genreFill, { width: g.pct as any }]} />
+            <Text style={styles.sectionTitle}>Genres</Text>
+            <View style={styles.genreList}>
+              {stats.genres.map((g) => (
+                <View key={g.name} style={styles.genreRow}>
+                  <Text style={styles.genreName} numberOfLines={1}>
+                    {g.name}
+                  </Text>
+                  <View style={styles.genreTrack}>
+                    <View style={[styles.genreFill, { width: g.pct as any }]} />
+                  </View>
+                  <Text style={styles.genreCount}>{g.n}</Text>
                 </View>
-                <Text style={styles.genreCount}>{g.n}</Text>
-              </View>
-            ))}
+              ))}
+            </View>
           </View>
         ) : null}
 
-        <View style={[styles.section, styles.lastSection]}>
-          <Text style={styles.sectionLabel}>Of note</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Highlights</Text>
           {stats.notables.length > 0 ? (
-            stats.notables.map((n) => (
-              <View key={n.k} style={styles.notableRow}>
-                <Text style={styles.notableKey}>{n.k}</Text>
-                <Text style={styles.notableValue}>{n.v}</Text>
-              </View>
-            ))
+            <View>
+              {stats.notables.map((n) => (
+                <View key={n.k} style={styles.notableRow}>
+                  <Text style={styles.notableKey}>{n.k}</Text>
+                  <Text style={styles.notableValue}>{n.v}</Text>
+                </View>
+              ))}
+            </View>
           ) : (
             <Text style={styles.emptyNote}>Enshrine a book this year to see it here.</Text>
           )}
           <TouchableOpacity style={styles.shareBtn} accessibilityRole="button" onPress={share}>
-            <Text style={styles.shareLabel}>Share the year as a card</Text>
+            <Text style={styles.shareLabel}>Share your year</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -93,168 +109,145 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: color.text,
+    paddingHorizontal: gutter,
+    paddingTop: space[3],
+    gap: 2,
   },
-  kicker: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 2.2,
-    textTransform: 'uppercase',
-    color: color.accent,
-    marginBottom: 6,
+  h1: {
+    ...type.display,
+    fontVariant: ['lining-nums'],
   },
-  h2: {
-    fontFamily: font.heading,
-    fontSize: 30,
-    letterSpacing: -0.6,
-    color: color.text,
+  subtitle: {
+    ...type.secondary,
+    fontSize: 15,
+    lineHeight: 22,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: gutter,
+    paddingTop: 28,
+    paddingBottom: space[8],
+    gap: space[8],
   },
   bigStats: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
+    gap: space[4],
   },
   bigStat: {
     flex: 1,
-    paddingVertical: 16,
-  },
-  bigStatDivider: {
-    width: 1,
-    backgroundColor: color.divider,
+    gap: 2,
   },
   bigStatValue: {
-    fontFamily: font.heading,
-    fontWeight: '400',
-    fontSize: 40,
-    lineHeight: 40,
+    fontFamily: font.serif,
+    fontSize: 46,
+    lineHeight: 52,
     color: color.text,
     fontVariant: ['tabular-nums', 'lining-nums'],
   },
   bigStatLabel: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    color: color.textMuted55,
-    marginTop: 4,
+    ...type.secondary,
   },
   section: {
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
+    gap: 14,
   },
-  lastSection: {
-    paddingBottom: 28,
-  },
-  sectionLabel: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: color.textMuted55,
-    marginBottom: 14,
+  sectionTitle: {
+    ...type.section,
   },
   monthsRow: {
     flexDirection: 'row',
     gap: 6,
-    height: 96,
+    height: 132,
   },
   monthCol: {
     flex: 1,
-    height: 96,
     justifyContent: 'flex-end',
     alignItems: 'center',
     gap: 6,
   },
   monthBar: {
     width: '100%',
-    borderWidth: 1,
-    borderColor: color.accent,
+    borderRadius: 3,
+  },
+  monthBarEmpty: {
+    height: 4,
+    backgroundColor: color.divider,
   },
   monthLabel: {
-    fontFamily: font.body,
-    fontSize: 8,
-    color: color.textMuted50,
-    fontVariant: ['tabular-nums', 'lining-nums'],
+    ...type.caption,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  genreList: {
+    gap: space[3],
   },
   genreRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: 9,
+    gap: space[3],
   },
   genreName: {
-    fontFamily: font.body,
-    fontSize: 12,
-    width: 78,
-    color: color.text,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 20,
+    width: 96,
   },
   genreTrack: {
     flex: 1,
-    height: 7,
-    borderWidth: 1,
-    borderColor: color.accent,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: color.surface,
+    overflow: 'hidden',
   },
   genreFill: {
-    height: 5,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: color.accent,
-    opacity: 0.55,
   },
   genreCount: {
-    fontFamily: font.body,
-    fontSize: 11,
-    width: 20,
+    ...type.secondary,
+    width: 24,
     textAlign: 'right',
-    color: color.textMuted58,
     fontVariant: ['tabular-nums', 'lining-nums'],
   },
   notableRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
-    gap: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
+    gap: space[3],
+    paddingVertical: space[3],
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: color.divider,
   },
   notableKey: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.textMuted58,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: color.textSecondary,
   },
   notableValue: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: color.text,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: 'right',
     flexShrink: 1,
   },
   emptyNote: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.textMuted60,
-    paddingVertical: 8,
+    ...type.secondary,
+    fontSize: 15,
+    lineHeight: 22,
   },
   shareBtn: {
-    backgroundColor: color.accent,
-    borderRadius: 4,
-    paddingVertical: 12,
+    height: 52,
+    backgroundColor: color.ink,
+    borderRadius: radius.lg,
     alignItems: 'center',
-    marginTop: 18,
+    justifyContent: 'center',
+    marginTop: space[3],
   },
   shareLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: '#fff',
+    ...type.button,
+    color: color.onInk,
   },
 });

@@ -8,7 +8,7 @@ import { ordinalWords } from '../lib/inscriptions';
 import { sharePlate } from '../lib/sharePlate';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
-import { color, font } from '../theme/tokens';
+import { color, font, radius, space, type } from '../theme/tokens';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Plaque'>;
 type Route = RouteProp<RootStackParamList, 'Plaque'>;
@@ -25,19 +25,18 @@ export default function PlaqueScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <View ref={plateRef} collapsable={false} style={styles.plateCard}>
-      <View style={styles.seal}>
-        <View style={styles.sealInner} />
-        <MedalIcon size={40} color={color.accent500} strokeWidth={1.2} />
-      </View>
-      <View style={styles.titleBlock}>
-        <Text style={styles.kicker}>Volume the {ordinalWords(book.volume ?? 1)}</Text>
-        <Text style={styles.title}>{book.title}</Text>
-        <Text style={styles.meta}>
-          {book.author}
-          {book.pages > 0 ? ` · ${book.pages} pages` : ''}
-        </Text>
-      </View>
-      <Text style={styles.inscription}>"{book.inscription}"</Text>
+        <View style={styles.seal}>
+          <MedalIcon size={36} color={color.nightAccent} strokeWidth={1.3} />
+        </View>
+        <View style={styles.titleBlock}>
+          <Text style={styles.kicker}>Volume the {ordinalWords(book.volume ?? 1)}</Text>
+          <Text style={styles.title}>{book.title}</Text>
+          <Text style={styles.meta}>
+            {book.author}
+            {book.pages > 0 ? ` · ${book.pages.toLocaleString()} pages` : ''}
+          </Text>
+        </View>
+        {book.inscription ? <Text style={styles.inscription}>“{book.inscription}”</Text> : null}
       </View>
       <View style={styles.actions}>
         <TouchableOpacity
@@ -56,100 +55,84 @@ export default function PlaqueScreen() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: color.night,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: space[8],
+    gap: 48,
+  },
+  // Captured as the share image, so it carries its own background.
   plateCard: {
     alignItems: 'center',
     alignSelf: 'stretch',
     gap: 28,
-    paddingVertical: 24,
-    backgroundColor: color.neutral900,
-  },
-  screen: {
-    flex: 1,
-    backgroundColor: color.neutral900,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 30,
-    paddingVertical: 40,
-    gap: 28,
+    paddingVertical: space[6],
+    backgroundColor: color.night,
   },
   seal: {
-    width: 112,
-    height: 112,
-    borderRadius: 56,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
     borderWidth: 1,
-    borderColor: color.accent,
+    borderColor: color.nightRing,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  sealInner: {
-    position: 'absolute',
-    top: 9,
-    left: 9,
-    right: 9,
-    bottom: 9,
-    borderRadius: 46,
-    borderWidth: 1,
-    borderColor: color.accent400,
-    opacity: 0.45,
   },
   titleBlock: {
     alignItems: 'center',
+    gap: space[2],
   },
   kicker: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 2.2,
-    textTransform: 'uppercase',
-    color: color.accent,
-    marginBottom: 10,
+    fontFamily: font.sansMedium,
+    fontSize: 14,
+    lineHeight: 20,
+    color: color.nightAccent,
   },
   title: {
-    fontFamily: font.heading,
-    fontWeight: '400',
-    fontSize: 34,
-    color: color.neutral100,
-    lineHeight: 38,
-    marginBottom: 8,
+    ...type.display,
+    letterSpacing: -0.3,
+    color: color.nightText,
     textAlign: 'center',
   },
   meta: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 13,
-    color: color.neutral400,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: color.nightTextSecondary,
+    textAlign: 'center',
   },
   inscription: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 13,
-    lineHeight: 23,
-    color: color.neutral300,
+    ...type.inscription,
+    color: color.nightBody,
     textAlign: 'center',
-    maxWidth: 262,
+    maxWidth: 300,
   },
   actions: {
-    gap: 9,
-    width: 236,
+    gap: 6,
+    width: '100%',
+    maxWidth: 300,
   },
   primaryBtn: {
-    borderWidth: 1,
-    borderColor: color.accent400,
-    borderRadius: 4,
-    paddingVertical: 12,
+    height: 52,
+    backgroundColor: color.nightText,
+    borderRadius: radius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: color.accent300,
+    ...type.button,
+    color: color.ink,
   },
   ghostBtn: {
-    paddingVertical: 8,
+    minHeight: 46,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   ghostLabel: {
-    fontFamily: font.body,
-    fontSize: 13,
-    color: color.neutral400,
+    fontFamily: font.sansMedium,
+    fontSize: 15,
+    color: color.nightTextSecondary,
   },
 });

@@ -1,5 +1,5 @@
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { color, font, radius } from '../theme/tokens';
+import { color, font, gutter, radius, space, type } from '../theme/tokens';
 
 export type ActionItem = {
   label: string;
@@ -20,7 +20,7 @@ export default function ActionMenu({ visible, title, items, onClose }: Props) {
       <Pressable style={styles.backdrop} onPress={onClose} />
       <View style={styles.sheet}>
         {title ? (
-          <Text style={styles.title} numberOfLines={1}>
+          <Text style={styles.title} numberOfLines={2}>
             {title}
           </Text>
         ) : null}
@@ -48,51 +48,49 @@ export default function ActionMenu({ visible, title, items, onClose }: Props) {
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(45, 43, 43, 0.5)',
+    backgroundColor: color.backdrop,
   },
   sheet: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: color.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.divider,
-    paddingTop: 10,
-    paddingBottom: 30,
+    backgroundColor: color.bg,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    paddingHorizontal: gutter,
+    paddingTop: space[4],
+    paddingBottom: space[8],
   },
   title: {
-    fontFamily: font.body,
-    fontSize: 11,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    color: color.textMuted55,
+    ...type.caption,
     textAlign: 'center',
-    paddingVertical: 8,
+    paddingBottom: space[3],
   },
   item: {
-    paddingVertical: 15,
+    minHeight: 54,
     alignItems: 'center',
-    borderTopWidth: 1,
+    justifyContent: 'center',
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: color.divider,
   },
   itemLabel: {
-    fontFamily: font.heading,
-    fontSize: 16,
+    fontFamily: font.sansMedium,
+    fontSize: 17,
     color: color.text,
   },
   destructive: {
-    color: '#9b3b2f',
+    color: color.danger,
   },
   cancel: {
-    marginTop: 6,
+    marginTop: space[2],
     borderTopWidth: 0,
+    backgroundColor: color.surface,
+    borderRadius: radius.lg,
   },
   cancelLabel: {
-    fontFamily: font.body,
-    fontSize: 14,
-    color: color.textMuted60,
+    fontFamily: font.sansSemiBold,
+    fontSize: 16,
+    color: color.text,
   },
 });

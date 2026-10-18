@@ -6,13 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomBar, { BOTTOM_BAR_CLEARANCE } from '../components/BottomBar';
 import ChatBubble from '../components/ChatBubble';
 import CoverPlate from '../components/CoverPlate';
-import { GearIcon, SearchIcon, YearIcon } from '../components/icons';
+import { ChevronDownIcon, GearIcon, SearchIcon } from '../components/icons';
 import ProgressSheet from '../components/ProgressSheet';
 import { writeInscription } from '../lib/inscribe';
 import { daysBetween } from '../lib/inscriptions';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
-import { color, font, radius, space } from '../theme/tokens';
+import { color, gutter, radius, shadow, space, type } from '../theme/tokens';
 import { Book } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -67,6 +67,7 @@ export default function ShelfScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <Header
+        summary={isEmpty ? null : shelfSummary(finished, reading)}
         searchOpen={searchOpen}
         onToggleSearch={() => {
           setSearchOpen((v) => !v);
@@ -79,7 +80,7 @@ export default function ShelfScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder="Search by title or author"
-          placeholderTextColor={color.textMuted55}
+          placeholderTextColor={color.placeholder}
           autoFocus
           autoCorrect={false}
           returnKeyType="search"
@@ -88,19 +89,16 @@ export default function ShelfScreen() {
       {isEmpty ? (
         <EmptyShelf />
       ) : (
-        <>
-          {finished.length > 0 ? <StatsRow books={finished} /> : null}
-          <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-            {reading.length > 0 ? <ReadingNow reading={reading} onPress={setProgressBook} /> : null}
-            <EnshrinedGrid
-              books={visible}
-              total={finished.length}
-              sortLabel={SORT_LABEL[sort]}
-              onCycleSort={() => setSort((s) => SORT_ORDER[(SORT_ORDER.indexOf(s) + 1) % SORT_ORDER.length])}
-              filtered={query.trim().length > 0}
-            />
-          </ScrollView>
-        </>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          {reading.length > 0 ? <ReadingNow reading={reading} onPress={setProgressBook} /> : null}
+          <FinishedGrid
+            books={visible}
+            total={finished.length}
+            sortLabel={SORT_LABEL[sort]}
+            onCycleSort={() => setSort((s) => SORT_ORDER[(SORT_ORDER.indexOf(s) + 1) % SORT_ORDER.length])}
+            filtered={query.trim().length > 0}
+          />
+        </ScrollView>
       )}
       <BottomBar active="shelf" />
       <ChatBubble bottom={BOTTOM_BAR_CLEARANCE} />
@@ -117,41 +115,57 @@ export default function ShelfScreen() {
   );
 }
 
-function Header({ searchOpen, onToggleSearch }: { searchOpen: boolean; onToggleSearch: () => void }) {
+// One quiet line under the title in place of a stats bar, e.g.
+// "6 books · 2,927 pages · 2 this month".
+function shelfSummary(finished: Book[], reading: Book[]) {
+  if (finished.length === 0) return `${reading.length} reading`;
+  const pages = finished.reduce((sum, b) => sum + b.pages, 0);
+  const now = new Date();
+  const thisMonth = finished.filter((b) => {
+    if (!b.finishedAt) return false;
+    const d = new Date(b.finishedAt);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  const parts = [`${finished.length} ${finished.length === 1 ? 'book' : 'books'}`, `${pages.toLocaleString()} pages`];
+  if (thisMonth > 0) parts.push(`${thisMonth} this month`);
+  return parts.join(' · ');
+}
+
+function Header({
+  summary,
+  searchOpen,
+  onToggleSearch,
+}: {
+  summary: string | null;
+  searchOpen: boolean;
+  onToggleSearch: () => void;
+}) {
   const navigation = useNavigation<Nav>();
   return (
     <View style={styles.header}>
-      <View>
-        <Text style={styles.kicker}>Est. 2026</Text>
-        <Text style={styles.h2}>The Shelf</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.h1}>Shelf</Text>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={[styles.iconBtn, searchOpen && styles.iconBtnActive]}
+            accessibilityLabel="Search"
+            accessibilityRole="button"
+            accessibilityState={{ selected: searchOpen }}
+            onPress={onToggleSearch}
+          >
+            <SearchIcon size={22} color={color.text} strokeWidth={1.7} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconBtn}
+            accessibilityLabel="Settings"
+            accessibilityRole="button"
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <GearIcon size={22} color={color.text} strokeWidth={1.7} />
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.headerActions}>
-        <TouchableOpacity
-          style={[styles.iconBtn, searchOpen && styles.iconBtnActive]}
-          accessibilityLabel="Search"
-          accessibilityRole="button"
-          accessibilityState={{ selected: searchOpen }}
-          onPress={onToggleSearch}
-        >
-          <SearchIcon color={searchOpen ? color.accent : color.text} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconBtn}
-          accessibilityLabel="Reading year"
-          accessibilityRole="button"
-          onPress={() => navigation.navigate('Year')}
-        >
-          <YearIcon color={color.text} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconBtn}
-          accessibilityLabel="Settings"
-          accessibilityRole="button"
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <GearIcon color={color.text} />
-        </TouchableOpacity>
-      </View>
+      {summary ? <Text style={styles.summary}>{summary}</Text> : null}
     </View>
   );
 }
@@ -160,67 +174,47 @@ function EmptyShelf() {
   const navigation = useNavigation<Nav>();
   return (
     <View style={styles.emptyWrap}>
-      <View style={styles.emptySpines}>
-        <View style={[styles.emptySpine, { height: 120 }]} />
-        <View style={[styles.emptySpine, { height: 138, width: 22 }]} />
-        <View style={[styles.emptySpine, { height: 106, width: 30 }]} />
+      <View>
+        <View style={styles.emptySpines}>
+          <View style={[styles.emptySpine, { height: 96 }]} />
+          <View style={[styles.emptySpine, { height: 112, width: 20 }]} />
+          <View style={[styles.emptySpine, { height: 84, width: 28 }]} />
+        </View>
+        <View style={styles.emptyShelfLine} />
       </View>
-      <View style={styles.emptyShelfLine} />
       <View style={styles.emptyCopy}>
-        <Text style={styles.kicker}>Nothing here yet</Text>
-        <Text style={styles.emptyTitle}>A shelf is built{'\n'}one finished book{'\n'}at a time.</Text>
+        <Text style={styles.emptyTitle}>A shelf is built one finished book at a time.</Text>
         <Text style={styles.emptyBody}>
           Photograph the cover of something you've finished — this year, last year, in school. It gets a plate, a
           date and an inscription written for that book alone.
         </Text>
       </View>
       <TouchableOpacity
-        style={styles.emptyPrimaryBtn}
+        style={styles.primaryBtn}
         accessibilityRole="button"
         onPress={() => navigation.navigate('Capture')}
       >
-        <Text style={styles.emptyPrimaryLabel}>Enshrine your first book</Text>
+        <Text style={styles.primaryLabel}>Enshrine your first book</Text>
       </TouchableOpacity>
-    </View>
-  );
-}
-
-function StatsRow({ books }: { books: Book[] }) {
-  const totalPages = books.reduce((sum, b) => sum + b.pages, 0);
-  const now = new Date();
-  const thisMonth = books.filter((b) => {
-    if (!b.finishedAt) return false;
-    const d = new Date(b.finishedAt);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }).length;
-  return (
-    <View style={styles.statsRow}>
-      <StatCell value={String(books.length)} label="Volumes" divider />
-      <StatCell value={totalPages.toLocaleString()} label="Pages" divider />
-      <StatCell value={String(thisMonth)} label="This month" />
-    </View>
-  );
-}
-
-function StatCell({ value, label, divider }: { value: string; label: string; divider?: boolean }) {
-  return (
-    <View style={[styles.statCell, divider && styles.statCellDivider]}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
 }
 
 function ReadingNow({ reading, onPress }: { reading: Book[]; onPress: (b: Book) => void }) {
   return (
-    <View>
+    <View style={styles.section}>
       <View style={styles.sectionHeadRow}>
-        <Text style={styles.sectionLabel}>Reading now</Text>
+        <Text style={styles.sectionTitle}>Reading now</Text>
         <Text style={styles.sectionAside}>
           {reading.length} {reading.length === 1 ? 'book' : 'books'}
         </Text>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.readingRow}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.readingScroller}
+        contentContainerStyle={styles.readingRow}
+      >
         {reading.map((b) => {
           const pct = b.pages > 0 ? Math.min(100, Math.round((b.pagesRead / b.pages) * 100)) : 0;
           return (
@@ -231,13 +225,13 @@ function ReadingNow({ reading, onPress }: { reading: Book[]; onPress: (b: Book) 
               accessibilityLabel={`Update progress for ${b.title}`}
               onPress={() => onPress(b)}
             >
-              <CoverPlate style={styles.readingPlate} imageUri={b.coverUri ?? undefined} />
+              <CoverPlate style={styles.readingPlate} elevation="sm" imageUri={b.coverUri ?? undefined} />
               <View style={styles.readingInfo}>
                 <Text style={styles.readingTitle} numberOfLines={1}>
                   {b.title}
                 </Text>
                 <Text style={styles.readingProgress}>
-                  {b.pagesRead} / {b.pages || '?'} pp
+                  {b.pagesRead.toLocaleString()} of {b.pages ? b.pages.toLocaleString() : '?'} pages
                 </Text>
                 <View style={styles.progressTrack}>
                   <View style={[styles.progressFill, { width: `${pct}%` }]} />
@@ -251,7 +245,7 @@ function ReadingNow({ reading, onPress }: { reading: Book[]; onPress: (b: Book) 
   );
 }
 
-function EnshrinedGrid({
+function FinishedGrid({
   books,
   total,
   sortLabel,
@@ -265,23 +259,26 @@ function EnshrinedGrid({
   filtered: boolean;
 }) {
   const navigation = useNavigation<Nav>();
-  const heading = filtered
-    ? `${books.length} of ${total} found`
-    : books[0]?.finishedAt
-      ? `Enshrined · ${monthYear(books[0].finishedAt)}`
-      : 'Enshrined';
+  const heading = filtered ? `${books.length} of ${total} found` : 'Finished';
   return (
-    <View>
-      <View style={[styles.sectionHeadRow, styles.enshrinedHeadRow]}>
-        <Text style={styles.sectionLabel}>{heading}</Text>
+    <View style={styles.section}>
+      <View style={styles.sectionHeadRow}>
+        <Text style={styles.sectionTitle}>{heading}</Text>
         {total > 0 ? (
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Sort by ${sortLabel}`} onPress={onCycleSort}>
-            <Text style={styles.sectionAside}>Sort · {sortLabel}</Text>
+          <TouchableOpacity
+            style={styles.sortBtn}
+            accessibilityRole="button"
+            accessibilityLabel={`Sorted by ${sortLabel}. Change sort`}
+            onPress={onCycleSort}
+            hitSlop={10}
+          >
+            <Text style={styles.sectionAside}>{sortLabel}</Text>
+            <ChevronDownIcon color={color.textSecondary} />
           </TouchableOpacity>
         ) : null}
       </View>
       {total === 0 ? (
-        <Text style={styles.gridEmpty}>Nothing enshrined yet — finish a book to give it a plate.</Text>
+        <Text style={styles.gridEmpty}>Nothing finished yet — finish a book to give it a plate.</Text>
       ) : books.length === 0 ? (
         <Text style={styles.gridEmpty}>No matches.</Text>
       ) : (
@@ -291,10 +288,15 @@ function EnshrinedGrid({
               key={b.id}
               style={styles.gridCell}
               accessibilityRole="button"
+              accessibilityLabel={`${b.title} by ${b.author}`}
               onPress={() => navigation.navigate('Detail', { bookId: b.id })}
             >
-              <CoverPlate style={styles.shelfPlate} elevation="sm" label={b.coverUri ? undefined : 'cover photo'} imageUri={b.coverUri ?? undefined} />
-              <View style={styles.plateRule} />
+              <CoverPlate
+                style={styles.shelfPlate}
+                elevation="md"
+                label={b.coverUri ? undefined : b.title}
+                imageUri={b.coverUri ?? undefined}
+              />
               <Text style={styles.bookTitle}>{b.title}</Text>
               <Text style={styles.bookAuthor}>{b.author}</Text>
             </TouchableOpacity>
@@ -305,264 +307,204 @@ function EnshrinedGrid({
   );
 }
 
-function monthYear(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-}
-
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: color.bg,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingHorizontal: gutter,
+    paddingTop: space[3],
+    gap: 2,
+  },
+  headerRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
   },
-  kicker: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1.4,
-    textTransform: 'uppercase',
-    color: color.accent,
-    marginBottom: 4,
+  h1: {
+    ...type.display,
   },
-  h2: {
-    fontFamily: font.heading,
-    fontSize: 30,
-    letterSpacing: -0.6,
-    color: color.text,
+  summary: {
+    ...type.secondary,
+    fontSize: 15,
+    lineHeight: 22,
   },
   headerActions: {
     flexDirection: 'row',
-    gap: 6,
+    gap: space[1],
+    marginRight: -10,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: color.divider,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconBtnActive: {
-    borderColor: color.accent,
+    backgroundColor: color.surface,
   },
   searchInput: {
-    marginHorizontal: 20,
-    marginTop: 10,
-    minHeight: 38,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontFamily: font.body,
-    fontSize: 14,
-    color: color.text,
-    borderWidth: 1,
-    borderColor: color.accent,
+    marginHorizontal: gutter,
+    marginTop: space[3],
+    height: 46,
+    paddingHorizontal: 14,
+    ...type.body,
+    backgroundColor: color.surface,
     borderRadius: radius.md,
-  },
-  gridEmpty: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 13,
-    color: color.textMuted60,
-    paddingVertical: 12,
-    paddingBottom: 24,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
-  },
-  statCell: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  statCellDivider: {
-    borderRightWidth: 1,
-    borderRightColor: color.divider,
-  },
-  statValue: {
-    fontFamily: font.heading,
-    fontSize: 22,
-    lineHeight: 22,
-    color: color.text,
-    fontVariant: ['tabular-nums', 'lining-nums'],
-  },
-  statLabel: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    color: color.textMuted55,
-    marginTop: 3,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingHorizontal: gutter,
+    paddingTop: space[6],
+    paddingBottom: space[8],
+    gap: space[8],
+  },
+  section: {
+    gap: space[3],
   },
   sectionHeadRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
   },
-  enshrinedHeadRow: {
-    borderTopWidth: 1,
-    borderTopColor: color.divider,
-    paddingTop: 14,
-  },
-  sectionLabel: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: color.textMuted55,
+  sectionTitle: {
+    ...type.section,
   },
   sectionAside: {
-    fontFamily: font.body,
-    fontSize: 11,
-    color: color.accent700,
+    ...type.secondary,
+  },
+  sortBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  gridEmpty: {
+    ...type.secondary,
+    fontSize: 15,
+    lineHeight: 22,
+    paddingVertical: space[2],
+  },
+  readingScroller: {
+    marginHorizontal: -gutter,
   },
   readingRow: {
     flexDirection: 'row',
-    gap: 12,
-    paddingBottom: 20,
+    gap: space[3],
+    paddingHorizontal: gutter,
   },
   readingCard: {
-    width: 176,
+    width: 248,
     flexDirection: 'row',
-    gap: 10,
-    alignItems: 'flex-start',
-    borderWidth: 1,
-    borderColor: color.divider,
-    borderRadius: radius.md,
-    padding: 8,
+    gap: space[3],
+    alignItems: 'center',
+    backgroundColor: color.surface,
+    borderRadius: radius.lg,
+    padding: 10,
   },
   readingPlate: {
-    width: 36,
-    height: 54,
+    width: 44,
+    height: 66,
   },
   readingInfo: {
     flex: 1,
     minWidth: 0,
+    gap: 3,
   },
   readingTitle: {
-    fontFamily: font.heading,
-    fontSize: 13,
-    lineHeight: 16,
-    color: color.text,
+    ...type.bookTitle,
   },
   readingProgress: {
-    fontFamily: font.body,
-    fontSize: 10,
-    color: color.textMuted55,
-    marginTop: 2,
+    ...type.caption,
     fontVariant: ['tabular-nums', 'lining-nums'],
   },
   progressTrack: {
-    height: 2,
-    backgroundColor: color.neutral200,
-    marginTop: 6,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: color.track,
+    marginTop: 4,
+    overflow: 'hidden',
   },
   progressFill: {
-    height: 2,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: color.accent,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 20,
-    paddingBottom: 20,
+    justifyContent: 'space-between',
+    rowGap: 28,
+    paddingTop: space[1],
   },
+  // Two columns with ~16px between them; a percentage (not a fixed gap) so
+  // the pair always fits on one row at any screen width.
   gridCell: {
-    width: '46%',
+    width: '47.5%',
   },
   shelfPlate: {
     aspectRatio: 2 / 3,
-  },
-  plateRule: {
-    height: 1,
-    backgroundColor: color.accent,
-    opacity: 0.5,
-    marginTop: 8,
-    marginBottom: 6,
+    marginBottom: 10,
   },
   bookTitle: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    lineHeight: 16,
-    color: color.text,
+    ...type.bookTitle,
   },
   bookAuthor: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 11,
-    color: color.textMuted60,
+    ...type.secondary,
     marginTop: 2,
   },
+  // Bottom padding keeps the call to action clear of the floating Librarian button.
   emptyWrap: {
     flex: 1,
-    paddingHorizontal: space[6],
-    paddingTop: space[8],
-    paddingBottom: space[8],
+    paddingHorizontal: gutter,
+    paddingTop: space[10],
+    paddingBottom: 88,
     justifyContent: 'space-between',
   },
   emptySpines: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 5,
-    height: 150,
-    opacity: 0.55,
+    gap: 6,
+    paddingLeft: 4,
   },
   emptySpine: {
-    width: 26,
-    borderWidth: 1,
-    borderColor: color.neutral400,
-    borderRadius: 3,
+    width: 24,
+    borderWidth: 1.5,
+    borderColor: color.track,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 3,
+    borderTopRightRadius: 3,
   },
   emptyShelfLine: {
-    height: 3,
-    backgroundColor: color.neutral300,
-    marginTop: -30,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: color.track,
   },
   emptyCopy: {
-    marginTop: space[6],
+    gap: space[3],
   },
   emptyTitle: {
-    fontFamily: font.heading,
-    fontWeight: '400',
-    fontSize: 32,
+    ...type.display,
+    fontSize: 30,
     lineHeight: 36,
-    color: color.text,
-    marginBottom: 10,
   },
   emptyBody: {
-    fontFamily: font.body,
-    fontSize: 13,
-    lineHeight: 22,
-    color: color.textMuted65,
+    ...type.body,
+    color: color.textSecondary,
   },
-  emptyPrimaryBtn: {
-    backgroundColor: color.accent,
-    borderRadius: radius.md,
-    paddingVertical: 13,
+  primaryBtn: {
+    height: 52,
+    backgroundColor: color.ink,
+    borderRadius: radius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
+    ...shadow.sm,
   },
-  emptyPrimaryLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: '#fff',
+  primaryLabel: {
+    ...type.button,
+    color: color.onInk,
   },
 });

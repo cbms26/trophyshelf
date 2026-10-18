@@ -54,7 +54,7 @@ const config: ExpoConfig = {
         image: './assets/splash-icon.png',
         imageWidth: 200,
         resizeMode: 'contain',
-        backgroundColor: '#f3f2f2',
+        backgroundColor: '#FAF9F7',
       },
     ],
     'expo-dev-client',

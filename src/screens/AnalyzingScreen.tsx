@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CoverPlate from '../components/CoverPlate';
 import { analyzeCover } from '../lib/analyzeCover';
 import { RootStackParamList } from '../navigation/types';
-import { color, font, radius } from '../theme/tokens';
+import { color, font, gutter, radius, space, type } from '../theme/tokens';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Analyzing'>;
 type Route = RouteProp<RootStackParamList, 'Analyzing'>;
@@ -34,7 +34,7 @@ export default function AnalyzingScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
-      <CoverPlate style={styles.plate} elevation="md" imageUri={params.photoUri} />
+      <CoverPlate style={styles.plate} elevation="lg" imageUri={params.photoUri} />
       <View style={styles.copy}>
         <Text style={styles.title}>{error ? "Couldn't read the cover" : 'Reading the cover…'}</Text>
         <Text style={styles.body}>
@@ -74,65 +74,66 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    gap: 26,
+    paddingHorizontal: gutter,
+    gap: space[8],
   },
   plate: {
-    width: 180,
+    width: 168,
     aspectRatio: 2 / 3,
   },
   copy: {
     alignItems: 'center',
-    maxWidth: 250,
+    gap: space[2],
+    maxWidth: 300,
   },
   title: {
-    fontFamily: font.heading,
-    fontSize: 22,
-    color: color.text,
-    marginBottom: 6,
+    ...type.title,
     textAlign: 'center',
   },
   body: {
-    fontFamily: font.body,
-    fontSize: 12,
-    lineHeight: 19,
-    color: color.textMuted60,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: color.textSecondary,
     textAlign: 'center',
   },
   progressTrack: {
-    width: 180,
-    height: 1,
-    backgroundColor: color.neutral300,
+    width: 168,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: color.track,
     overflow: 'hidden',
   },
   progressFill: {
-    height: 1,
+    height: 3,
     width: '60%',
+    borderRadius: 2,
     backgroundColor: color.accent,
   },
   actions: {
-    gap: 10,
-    width: 220,
+    gap: space[1],
+    width: '100%',
+    maxWidth: 300,
   },
   retryBtn: {
-    backgroundColor: color.accent,
-    borderRadius: radius.md,
-    paddingVertical: 12,
+    height: 52,
+    backgroundColor: color.ink,
+    borderRadius: radius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   retryLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: '#fff',
+    ...type.button,
+    color: color.onInk,
   },
   manualBtn: {
-    paddingVertical: 8,
+    minHeight: 46,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   manualLabel: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.textMuted60,
-    textDecorationLine: 'underline',
+    fontFamily: font.sansMedium,
+    fontSize: 15,
+    color: color.textSecondary,
   },
 });

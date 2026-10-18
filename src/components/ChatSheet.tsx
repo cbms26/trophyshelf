@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Recommendation } from '../lib/chat';
 import { useBooks } from '../store/BooksContext';
 import { ChatMessage, useChat } from '../store/ChatContext';
-import { color, font, radius } from '../theme/tokens';
+import { color, font, radius, space, type } from '../theme/tokens';
 import { CloseIcon, SendIcon } from './icons';
 
 const YEAR = new Date().getFullYear();
@@ -55,18 +55,19 @@ export default function ChatSheet({ visible, onClose }: { visible: boolean; onCl
         pointerEvents="box-none"
       >
         <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+          <View style={styles.grabber} />
           <View style={styles.header}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.kicker}>The Librarian</Text>
-              <Text style={styles.title}>Ask about your shelf</Text>
+              <Text style={styles.title}>The Librarian</Text>
+              <Text style={styles.subtitle}>Ask about your shelf</Text>
             </View>
             {messages.length > 0 ? (
               <TouchableOpacity accessibilityRole="button" onPress={clear} style={styles.clearBtn}>
                 <Text style={styles.clearLabel}>Clear</Text>
               </TouchableOpacity>
             ) : null}
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} hitSlop={10}>
-              <CloseIcon />
+            <TouchableOpacity style={styles.closeBtn} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose}>
+              <CloseIcon size={22} color={color.text} strokeWidth={1.8} />
             </TouchableOpacity>
           </View>
 
@@ -106,7 +107,7 @@ export default function ChatSheet({ visible, onClose }: { visible: boolean; onCl
               value={draft}
               onChangeText={setDraft}
               placeholder={emptyShelf ? 'Enshrine a book to begin' : 'Ask the Librarian…'}
-              placeholderTextColor={color.textMuted55}
+              placeholderTextColor={color.placeholder}
               editable={!emptyShelf}
               multiline
               maxLength={2000}
@@ -191,140 +192,132 @@ function RecCard({ rec }: { rec: Recommendation }) {
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(45, 43, 43, 0.5)',
+    backgroundColor: color.backdrop,
   },
   avoider: {
     flex: 1,
     justifyContent: 'flex-end',
   },
   sheet: {
-    height: '82%',
-    backgroundColor: color.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.divider,
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    height: '84%',
+    backgroundColor: color.bg,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    paddingHorizontal: space[5],
+    paddingTop: space[2],
+  },
+  grabber: {
+    alignSelf: 'center',
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: color.track,
+    marginBottom: space[3],
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
-  },
-  kicker: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: color.accent,
+    gap: space[2],
+    paddingBottom: space[3],
   },
   title: {
-    fontFamily: font.heading,
-    fontSize: 22,
-    lineHeight: 26,
-    color: color.text,
+    ...type.title,
+  },
+  subtitle: {
+    ...type.secondary,
+    marginTop: 2,
   },
   clearBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: color.divider,
-    borderRadius: radius.md,
+    minHeight: 44,
+    paddingHorizontal: space[2],
+    justifyContent: 'center',
   },
   clearLabel: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.textMuted70,
+    fontFamily: font.sansMedium,
+    fontSize: 15,
+    color: color.textSecondary,
+  },
+  closeBtn: {
+    width: 44,
+    height: 44,
+    marginRight: -10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   list: {
     flex: 1,
   },
   listContent: {
-    paddingVertical: 14,
-    gap: 10,
+    paddingVertical: space[3],
+    gap: space[3],
   },
   intro: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 14,
-    lineHeight: 21,
-    color: color.textMuted70,
+    ...type.body,
+    color: color.textSecondary,
   },
   starters: {
-    gap: 8,
-    marginTop: 6,
+    gap: space[2],
+    marginTop: space[2],
   },
   chip: {
     alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderColor: color.accent300,
-    backgroundColor: color.accent100,
-    borderRadius: 9999,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    backgroundColor: color.surface,
+    borderRadius: radius.pill,
+    paddingHorizontal: space[4],
+    paddingVertical: 10,
   },
   chipLabel: {
-    fontFamily: font.body,
-    fontSize: 13,
-    color: color.accent700,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 20,
   },
   msg: {
-    borderRadius: radius.lg,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     maxWidth: '88%',
   },
   mine: {
     alignSelf: 'flex-end',
-    backgroundColor: color.accent,
+    backgroundColor: color.ink,
+    borderBottomRightRadius: 6,
   },
   theirs: {
     alignSelf: 'flex-start',
-    backgroundColor: color.bg,
-    borderWidth: 1,
-    borderColor: color.divider,
+    backgroundColor: color.surface,
+    borderBottomLeftRadius: 6,
   },
   errorMsg: {
-    borderColor: color.accent400,
-    backgroundColor: color.accent100,
+    backgroundColor: color.accentTint,
   },
   msgText: {
-    fontFamily: font.body,
-    fontSize: 14,
-    lineHeight: 21,
-    color: color.text,
+    ...type.body,
   },
   mineText: {
-    color: '#fff',
+    color: color.onInk,
   },
   typing: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: space[2],
   },
   typingLabel: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 13,
-    color: color.textMuted62,
+    ...type.secondary,
+    fontSize: 15,
   },
   retryBtn: {
-    marginTop: 8,
+    marginTop: space[2],
     alignSelf: 'flex-start',
   },
   retryLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: color.accent700,
+    fontFamily: font.sansSemiBold,
+    fontSize: 15,
+    color: color.accentText,
     textDecorationLine: 'underline',
   },
   recs: {
-    gap: 10,
-    paddingTop: 8,
+    gap: space[3],
+    paddingTop: space[2],
   },
   rec: {
     width: 104,
@@ -332,57 +325,50 @@ const styles = StyleSheet.create({
   },
   recCover: {
     width: 104,
-    height: 152,
+    height: 156,
     borderRadius: radius.sm,
-    backgroundColor: color.neutral300,
+    backgroundColor: color.surface,
   },
   recCoverBlank: {
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: color.divider,
   },
   recTitle: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    lineHeight: 16,
-    color: color.text,
+    ...type.bookTitle,
+    fontSize: 15,
+    lineHeight: 19,
+    marginTop: 4,
   },
   recAuthor: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 11,
-    color: color.textMuted62,
+    ...type.caption,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 8,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: color.divider,
+    gap: space[2],
+    paddingTop: space[2],
   },
   input: {
     flex: 1,
-    minHeight: 40,
-    maxHeight: 110,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    fontFamily: font.body,
-    fontSize: 14,
-    color: color.text,
-    borderWidth: 1,
-    borderColor: color.divider,
-    borderRadius: radius.md,
-    backgroundColor: color.bg,
+    minHeight: 44,
+    maxHeight: 120,
+    paddingHorizontal: space[4],
+    paddingTop: 11,
+    paddingBottom: 11,
+    ...type.body,
+    lineHeight: 22,
+    backgroundColor: color.surface,
+    borderRadius: 22,
   },
   sendBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: color.accent,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: color.ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
   disabled: {
-    opacity: 0.45,
+    opacity: 0.35,
   },
 });

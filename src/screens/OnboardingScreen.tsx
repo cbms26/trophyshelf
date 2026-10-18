@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CoverPlate from '../components/CoverPlate';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
-import { color, font, radius, space } from '../theme/tokens';
+import { color, font, gutter, radius, space, type } from '../theme/tokens';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -48,12 +48,12 @@ export default function OnboardingScreen() {
             <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
           ))}
         </View>
-        <TouchableOpacity accessibilityRole="button" onPress={finish}>
+        <TouchableOpacity accessibilityRole="button" onPress={finish} hitSlop={12}>
           <Text style={styles.skip}>Skip</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.body}>
-        <CoverPlate style={styles.plate} elevation="lg" label="cover photo" />
+        <CoverPlate style={styles.plate} elevation="lg" label="Your cover here" />
         <View style={styles.copy}>
           <Text style={styles.title}>{slide.title}</Text>
           <Text style={styles.paragraph}>{slide.body}</Text>
@@ -77,81 +77,78 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: color.bg,
-    paddingHorizontal: space[6],
+    paddingHorizontal: gutter,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 8,
+    minHeight: 44,
+    paddingTop: space[1],
   },
   dots: {
     flexDirection: 'row',
-    gap: 5,
+    alignItems: 'center',
+    gap: 6,
   },
   dot: {
-    width: 20,
-    height: 2,
-    backgroundColor: color.neutral300,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: color.track,
   },
   dotActive: {
-    backgroundColor: color.accent,
+    width: 18,
+    backgroundColor: color.ink,
   },
   skip: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.accent,
+    fontFamily: font.sansMedium,
+    fontSize: 15,
+    color: color.textSecondary,
   },
   body: {
     flex: 1,
     justifyContent: 'center',
-    gap: space[6],
+    gap: space[8],
   },
   plate: {
-    width: 150,
+    width: 148,
     aspectRatio: 2 / 3,
     alignSelf: 'center',
-    transform: [{ rotate: '-2deg' }],
   },
   copy: {
     alignItems: 'center',
+    gap: space[3],
   },
   title: {
-    fontFamily: font.heading,
-    fontWeight: '400',
+    ...type.display,
     fontSize: 30,
-    lineHeight: 34,
-    color: color.text,
+    lineHeight: 36,
     textAlign: 'center',
-    marginBottom: 10,
   },
   paragraph: {
-    fontFamily: font.body,
-    fontSize: 13,
-    lineHeight: 22,
-    color: color.textMuted65,
+    ...type.body,
+    color: color.textSecondary,
     textAlign: 'center',
-    maxWidth: 300,
+    maxWidth: 320,
   },
   footer: {
-    gap: 10,
-    paddingBottom: space[8],
+    gap: space[3],
+    paddingBottom: space[4],
   },
   primaryBtn: {
-    backgroundColor: color.accent,
-    borderRadius: radius.md,
-    paddingVertical: 13,
+    height: 52,
+    backgroundColor: color.ink,
+    borderRadius: radius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: '#fff',
+    ...type.button,
+    color: color.onInk,
   },
   caption: {
-    fontFamily: font.body,
-    fontSize: 11,
-    color: color.textMuted50,
+    ...type.caption,
     textAlign: 'center',
   },
 });

@@ -1,85 +1,107 @@
-// Ported from the Classical design system (project/_ds/classical-.../styles.css).
-// Flattened for React Native: no color-mix(), so translucent text/dividers are
-// pre-mixed against --color-bg (#f3f2f2) at the same percentages as the CSS.
+import { TextStyle } from 'react-native';
+
+// Minimal theme: warm paper ground, ink for text and primary actions, brass
+// kept for small highlights (progress, best month). Text colours are chosen
+// for at least 4.5:1 against `bg` and `surface`.
 
 export const color = {
-  bg: '#f3f2f2',
-  surface: '#eae9e9',
-  text: '#201f1d',
-  accent: '#b68235',
-  divider: '#d6d3d2', // color-mix(text 16%, transparent) over bg
+  bg: '#FAF9F7',
+  surface: '#F1EFEB',
+  card: '#FFFFFF',
+  divider: '#E6E3DE',
+  track: '#E2DED8',
 
-  neutral100: '#f8f4f4',
-  neutral200: '#eae7e7',
-  neutral300: '#d7d3d3',
-  neutral400: '#bab6b6',
-  neutral500: '#9b9797',
-  neutral600: '#7d7979',
-  neutral700: '#605d5d',
-  neutral800: '#444141',
-  neutral900: '#2d2b2b',
+  text: '#1C1B19',
+  textSecondary: '#5F5C56',
+  placeholder: '#8A867F', // placeholders and disabled only — too light for body copy
 
-  accent100: '#fff3e4',
-  accent200: '#ffe3bf',
-  accent300: '#facb8d',
-  accent400: '#e1ad66',
-  accent500: '#c28d41',
-  accent600: '#a06f24',
-  accent700: '#7d5411',
-  accent800: '#5a3b0a',
-  accent900: '#3a270d',
+  ink: '#1C1B19',
+  onInk: '#FFFFFF',
 
-  // text at reduced opacity, pre-mixed over --color-bg (#f3f2f2)
-  textMuted50: '#8b8a89',
-  textMuted55: '#84837f',
-  textMuted58: '#807e7c',
-  textMuted60: '#7d7c78',
-  textMuted62: '#7a7975',
-  textMuted65: '#77756d',
-  textMuted70: '#716f66',
-  textMuted72: '#6f6d64',
-  textMuted75: '#6b695f',
+  accent: '#A8742A',
+  accentSoft: 'rgba(168, 116, 42, 0.4)',
+  accentText: '#7A5118',
+  accentTint: '#F3EADB',
+
+  danger: '#A23B2C',
+  backdrop: 'rgba(28, 27, 25, 0.45)',
+
+  // Dark screens (plaque, camera)
+  night: '#171614',
+  nightSurface: '#2A2825',
+  nightText: '#F4F2EE',
+  nightTextSecondary: '#ABA69E',
+  nightBody: '#DEDAD3',
+  nightAccent: '#D9B172',
+  nightRing: '#8C6A3A',
 };
 
+// Custom fonts don't pick weights from fontWeight/fontStyle on Android, so
+// every weight and the italic are separate families.
 export const font = {
-  heading: 'CormorantGaramond_600SemiBold',
-  body: 'Lora_400Regular',
+  serif: 'SourceSerif4_400Regular',
+  serifSemiBold: 'SourceSerif4_600SemiBold',
+  serifItalic: 'SourceSerif4_400Regular_Italic',
+  sans: 'Figtree_400Regular',
+  sansMedium: 'Figtree_500Medium',
+  sansSemiBold: 'Figtree_600SemiBold',
 };
+
+export const type = {
+  display: { fontFamily: font.serifSemiBold, fontSize: 34, lineHeight: 40, letterSpacing: -0.4, color: color.text },
+  title: { fontFamily: font.serifSemiBold, fontSize: 22, lineHeight: 28, color: color.text },
+  bookTitle: { fontFamily: font.serifSemiBold, fontSize: 16, lineHeight: 21, color: color.text },
+  inscription: { fontFamily: font.serifItalic, fontSize: 18, lineHeight: 29, color: color.text },
+  body: { fontFamily: font.sans, fontSize: 16, lineHeight: 24, color: color.text },
+  secondary: { fontFamily: font.sans, fontSize: 14, lineHeight: 20, color: color.textSecondary },
+  section: { fontFamily: font.sansSemiBold, fontSize: 16, lineHeight: 22, color: color.text },
+  label: { fontFamily: font.sansMedium, fontSize: 13, lineHeight: 18, color: color.textSecondary },
+  caption: { fontFamily: font.sans, fontSize: 13, lineHeight: 18, color: color.textSecondary },
+  button: { fontFamily: font.sansSemiBold, fontSize: 16, lineHeight: 22 },
+  headerTitle: { fontFamily: font.sansSemiBold, fontSize: 17, lineHeight: 24, color: color.text },
+} satisfies Record<string, TextStyle>;
 
 export const space = {
-  1: 4.6,
-  2: 9.2,
-  3: 13.8,
-  4: 18.4,
-  6: 27.6,
-  8: 36.8,
+  1: 4,
+  2: 8,
+  3: 12,
+  4: 16,
+  5: 20,
+  6: 24,
+  8: 32,
+  10: 40,
 };
 
+// Horizontal page margin shared by every screen.
+export const gutter = 24;
+
 export const radius = {
-  sm: 2,
-  md: 4,
-  lg: 7,
+  sm: 4,
+  md: 10,
+  lg: 12,
+  xl: 20,
+  pill: 9999,
 };
 
 export const shadow = {
   sm: {
-    shadowColor: color.neutral900,
-    shadowOpacity: 0.14,
-    shadowRadius: 2,
+    shadowColor: color.ink,
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
     elevation: 2,
   },
   md: {
-    shadowColor: color.neutral900,
-    shadowOpacity: 0.16,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 3 },
+    shadowColor: color.ink,
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
   lg: {
-    shadowColor: color.neutral900,
-    shadowOpacity: 0.22,
-    shadowRadius: 32,
+    shadowColor: color.ink,
+    shadowOpacity: 0.16,
+    shadowRadius: 28,
     shadowOffset: { width: 0, height: 12 },
     elevation: 10,
   },

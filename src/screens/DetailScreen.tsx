@@ -6,11 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import ActionMenu from '../components/ActionMenu';
 import ChatBubble from '../components/ChatBubble';
 import CoverPlate from '../components/CoverPlate';
+import { BackIcon, MoreIcon, ShareIcon } from '../components/icons';
 import { daysBetween } from '../lib/inscriptions';
 import { sharePlate } from '../lib/sharePlate';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
-import { color, font, radius } from '../theme/tokens';
+import { color, gutter, space, type } from '../theme/tokens';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Detail'>;
 type Route = RouteProp<RootStackParamList, 'Detail'>;
@@ -31,10 +32,17 @@ export default function DetailScreen() {
 
   const days = daysBetween(book.startedAt, book.finishedAt);
 
+  const meta = [
+    book.genre,
+    book.pages > 0 ? `${book.pages.toLocaleString()} pages` : null,
+    days !== null ? `${days} day${days === 1 ? '' : 's'}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   const detailRows = [
-    book.finishedAt ? { k: 'Enshrined', v: fmt(book.finishedAt) } : null,
+    book.finishedAt ? { k: 'Finished', v: fmt(book.finishedAt) } : null,
     book.startedAt ? { k: 'Started', v: fmt(book.startedAt) } : null,
-    days !== null ? { k: 'Time to finish', v: `${days} day${days === 1 ? '' : 's'}` } : null,
     book.volume !== null ? { k: 'Volume', v: `No. ${book.volume}` } : null,
   ].filter((r): r is { k: string; v: string } => r !== null);
 
@@ -52,7 +60,7 @@ export default function DetailScreen() {
           accessibilityLabel="Back"
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.iconGlyph}>‹</Text>
+          <BackIcon />
         </TouchableOpacity>
         <View style={styles.headerActions}>
           <TouchableOpacity
@@ -61,7 +69,7 @@ export default function DetailScreen() {
             accessibilityLabel="Share"
             onPress={() => sharePlate(book, plateRef)}
           >
-            <Text style={styles.iconGlyph}>↑</Text>
+            <ShareIcon />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconBtn}
@@ -69,38 +77,41 @@ export default function DetailScreen() {
             accessibilityLabel="More"
             onPress={() => setMenuOpen(true)}
           >
-            <Text style={styles.iconGlyph}>⋯</Text>
+            <MoreIcon />
           </TouchableOpacity>
         </View>
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View ref={plateRef} collapsable={false} style={styles.plateCard}>
-          <CoverPlate style={styles.plate} elevation="md" imageUri={book.coverUri ?? undefined} label={book.coverUri ? undefined : 'cover photo'} />
-          <View style={styles.titleBlock}>
-            <Text style={styles.title}>{book.title}</Text>
-            <Text style={styles.author}>{book.author}</Text>
-          </View>
-          <View style={styles.tags}>
-            <Tag label={book.genre} accent />
-            {book.pages > 0 ? <Tag label={`${book.pages} pages`} /> : null}
-            {days !== null ? <Tag label={`${days} day${days === 1 ? '' : 's'}`} /> : null}
-          </View>
-          <View style={styles.inscriptionBox}>
-            <Text style={styles.inscriptionKicker}>The inscription</Text>
-            <Text style={styles.inscriptionText}>{book.inscription}</Text>
-          </View>
-        </View>
-        <View style={styles.detailRows}>
-          {detailRows.map((r) => (
-            <View key={r.k} style={styles.detailRow}>
-              <Text style={styles.detailKey}>{r.k}</Text>
-              <Text style={styles.detailValue}>{r.v}</Text>
+          <CoverPlate
+            style={styles.plate}
+            elevation="lg"
+            imageUri={book.coverUri ?? undefined}
+            label={book.coverUri ? undefined : book.title}
+          />
+          <Text style={styles.title}>{book.title}</Text>
+          <Text style={styles.author}>{book.author}</Text>
+          {meta ? <Text style={styles.meta}>{meta}</Text> : null}
+          {book.inscription ? (
+            <View style={styles.inscriptionBlock}>
+              <View style={styles.inscriptionRule} />
+              <Text style={styles.inscriptionText}>{book.inscription}</Text>
             </View>
-          ))}
+          ) : null}
         </View>
+        {detailRows.length > 0 ? (
+          <View style={styles.detailRows}>
+            {detailRows.map((r) => (
+              <View key={r.k} style={styles.detailRow}>
+                <Text style={styles.detailKey}>{r.k}</Text>
+                <Text style={styles.detailValue}>{r.v}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
         {book.note ? (
           <View style={styles.noteBlock}>
-            <Text style={styles.sectionLabel}>Your note</Text>
+            <Text style={styles.noteLabel}>Your note</Text>
             <Text style={styles.noteText}>{book.note}</Text>
           </View>
         ) : null}
@@ -125,168 +136,115 @@ export default function DetailScreen() {
   );
 }
 
-function Tag({ label, accent }: { label: string; accent?: boolean }) {
-  return (
-    <View style={[styles.tag, accent ? styles.tagAccent : styles.tagNeutral]}>
-      <Text style={[styles.tagLabel, accent ? styles.tagLabelAccent : styles.tagLabelNeutral]}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: color.bg,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 10,
+    paddingHorizontal: 14,
+    paddingTop: space[1],
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: color.divider,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconGlyph: {
-    fontSize: 18,
-    color: color.text,
-  },
   headerActions: {
     flexDirection: 'row',
-    gap: 6,
-  },
-  plateCard: {
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    backgroundColor: color.bg,
-    paddingTop: 4,
+    gap: 2,
   },
   scrollContent: {
-    paddingHorizontal: 24,
+    paddingHorizontal: gutter + 4,
+    paddingBottom: 96,
+  },
+  // Captured as the share image, so it carries its own background.
+  plateCard: {
     alignItems: 'center',
-    paddingBottom: 40,
+    backgroundColor: color.bg,
+    paddingTop: space[3],
+    paddingBottom: space[2],
   },
   plate: {
-    width: 172,
+    width: 156,
     aspectRatio: 2 / 3,
   },
-  titleBlock: {
-    marginTop: 16,
-    alignItems: 'center',
-  },
   title: {
-    fontFamily: font.heading,
-    fontSize: 27,
-    lineHeight: 30,
-    color: color.text,
-    marginBottom: 4,
+    ...type.display,
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: -0.3,
     textAlign: 'center',
+    marginTop: space[6],
   },
   author: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 13,
-    color: color.textMuted62,
-  },
-  tags: {
-    flexDirection: 'row',
-    gap: 7,
-    marginTop: 12,
-    marginBottom: 18,
-  },
-  tag: {
-    paddingVertical: 3,
-    paddingHorizontal: 10,
-    borderRadius: 3,
-  },
-  tagAccent: {
-    backgroundColor: color.accent100,
-  },
-  tagNeutral: {
-    backgroundColor: color.neutral100,
-  },
-  tagLabel: {
-    fontFamily: font.body,
-    fontSize: 11,
-  },
-  tagLabelAccent: {
-    color: color.accent800,
-  },
-  tagLabelNeutral: {
-    color: color.neutral800,
-  },
-  inscriptionBox: {
-    width: '100%',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: color.text,
-    paddingVertical: 18,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-  },
-  inscriptionKicker: {
-    fontFamily: font.body,
-    fontSize: 9,
-    letterSpacing: 1.8,
-    textTransform: 'uppercase',
-    color: color.accent,
-    marginBottom: 10,
-  },
-  inscriptionText: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 14,
-    lineHeight: 25,
-    color: color.text,
+    ...type.body,
+    lineHeight: 22,
+    color: color.textSecondary,
+    marginTop: space[1],
     textAlign: 'center',
   },
+  meta: {
+    ...type.secondary,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  inscriptionBlock: {
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 28,
+  },
+  inscriptionRule: {
+    width: 28,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: color.accent,
+  },
+  inscriptionText: {
+    ...type.inscription,
+    textAlign: 'center',
+    maxWidth: 320,
+  },
   detailRows: {
-    width: '100%',
-    marginTop: 16,
+    marginTop: 28,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: color.divider,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 9,
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
+    paddingVertical: 13,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: color.divider,
   },
   detailKey: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.textMuted58,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: color.textSecondary,
   },
   detailValue: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.text,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 22,
     fontVariant: ['tabular-nums', 'lining-nums'],
   },
   noteBlock: {
-    width: '100%',
-    marginTop: 16,
+    marginTop: space[6],
+    gap: 6,
   },
-  sectionLabel: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: color.textMuted55,
-    marginBottom: 8,
+  noteLabel: {
+    ...type.section,
+    fontSize: 14,
+    lineHeight: 20,
   },
   noteText: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 13,
-    lineHeight: 22,
-    color: color.textMuted75,
-    textAlign: 'justify',
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 23,
+    color: color.textSecondary,
   },
 });

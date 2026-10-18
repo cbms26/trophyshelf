@@ -1,12 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Constants from 'expo-constants';
+import { Children, Fragment } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BackIcon, ChevronRightIcon } from '../components/icons';
 import { API_BASE_URL } from '../config';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
-import { color, font, radius } from '../theme/tokens';
+import { color, gutter, radius, space, type } from '../theme/tokens';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
@@ -24,18 +26,15 @@ export default function SettingsScreen() {
           accessibilityLabel="Back"
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.iconGlyph}>‹</Text>
+          <BackIcon />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
-        <View style={{ width: 36 }} />
+        <View style={styles.iconBtn} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Section label="Your data">
+        <Section label="Your data" hint="Your shelf lives only on this device. Deleting the app deletes your shelf.">
           <Row label="Saved on" value="This device" />
-          <Text style={styles.hint}>
-            Your shelf lives only on this device. Deleting the app deletes your shelf.
-          </Text>
         </Section>
 
         <Section label="Your shelf">
@@ -53,11 +52,21 @@ export default function SettingsScreen() {
   );
 }
 
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+// A grouped list: hairlines between rows, none above the first or below the last.
+function Section({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  const rows = Children.toArray(children);
   return (
     <View style={styles.section}>
       <Text style={styles.sectionLabel}>{label}</Text>
-      <View style={styles.card}>{children}</View>
+      <View style={styles.card}>
+        {rows.map((row, i) => (
+          <Fragment key={i}>
+            {i > 0 ? <View style={styles.separator} /> : null}
+            {row}
+          </Fragment>
+        ))}
+      </View>
+      {hint ? <Text style={styles.hint}>{hint}</Text> : null}
     </View>
   );
 }
@@ -75,7 +84,7 @@ function LinkRow({ label, url }: { label: string; url: string }) {
   return (
     <TouchableOpacity style={styles.row} accessibilityRole="link" onPress={() => Linking.openURL(url).catch(() => {})}>
       <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowChevron}>›</Text>
+      <ChevronRightIcon color={color.textSecondary} />
     </TouchableOpacity>
   );
 }
@@ -86,82 +95,59 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingHorizontal: 14,
+    paddingTop: space[1],
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: color.divider,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconGlyph: {
-    fontSize: 18,
-    color: color.text,
-  },
   headerTitle: {
-    fontFamily: font.heading,
-    fontSize: 15,
-    color: color.text,
+    ...type.headerTitle,
   },
   content: {
-    padding: 20,
-    gap: 22,
+    paddingHorizontal: gutter,
+    paddingTop: space[4],
+    paddingBottom: space[8],
+    gap: 28,
   },
   section: {
-    gap: 8,
+    gap: space[2],
   },
   sectionLabel: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: color.textMuted55,
+    ...type.label,
+    paddingHorizontal: space[1],
   },
   card: {
-    borderWidth: 1,
-    borderColor: color.divider,
-    borderRadius: radius.md,
-    paddingHorizontal: 14,
+    backgroundColor: color.surface,
+    borderRadius: radius.lg,
+    paddingHorizontal: space[4],
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: color.track,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
+    minHeight: 52,
   },
   rowLabel: {
-    fontFamily: font.body,
-    fontSize: 13,
-    color: color.text,
+    ...type.body,
   },
   rowValue: {
-    fontFamily: font.body,
-    fontSize: 13,
-    color: color.textMuted58,
+    ...type.body,
+    color: color.textSecondary,
     fontVariant: ['tabular-nums', 'lining-nums'],
   },
-  rowChevron: {
-    fontSize: 18,
-    color: color.textMuted55,
-  },
   hint: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 12,
-    lineHeight: 18,
-    color: color.textMuted60,
-    paddingVertical: 12,
+    ...type.caption,
+    paddingHorizontal: space[1],
   },
 });

@@ -5,11 +5,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleProp,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CoverPlate from '../components/CoverPlate';
@@ -17,7 +19,7 @@ import { persistCover } from '../lib/coverStore';
 import { writeInscription } from '../lib/inscribe';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
-import { color, font, radius } from '../theme/tokens';
+import { color, font, gutter, radius, shadow, space, type } from '../theme/tokens';
 import { Book, BookStatus } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Confirm'>;
@@ -135,24 +137,32 @@ export default function ConfirmScreen() {
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.header}>
-          <TouchableOpacity accessibilityRole="button" onPress={() => leave('retake')} disabled={saving}>
+          <TouchableOpacity
+            style={styles.headerSide}
+            accessibilityRole="button"
+            onPress={() => leave('retake')}
+            disabled={saving}
+          >
             <Text style={styles.retake}>{editing ? 'Cancel' : 'Retake'}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{editing ? 'Edit the details' : 'Confirm the details'}</Text>
-          <View style={{ width: 52 }} />
+          <Text style={styles.headerTitle}>{editing ? 'Edit details' : 'Confirm details'}</Text>
+          <View style={styles.headerSide} />
         </View>
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.introRow}>
-            <CoverPlate style={styles.plate} imageUri={photoUri ?? undefined} label={photoUri ? undefined : 'cover photo'} />
+            <CoverPlate
+              style={styles.plate}
+              elevation="sm"
+              imageUri={photoUri ?? undefined}
+              label={photoUri ? undefined : 'No photo'}
+            />
             <View style={styles.introCopy}>
               {isFromCover ? (
                 <>
                   <View style={styles.tag}>
                     <Text style={styles.tagLabel}>Read from the cover</Text>
                   </View>
-                  <Text style={styles.introBody}>
-                    Check each field. Covers lie, and the reader misreads decorative type more often than plain.
-                  </Text>
+                  <Text style={styles.introBody}>Check each field. Decorative cover type is easy to misread.</Text>
                 </>
               ) : editing ? (
                 <Text style={styles.introBody}>Change anything here. The inscription stays as it was written.</Text>
@@ -163,7 +173,7 @@ export default function ConfirmScreen() {
           </View>
 
           {!editing ? (
-            <View style={styles.seg}>
+            <View style={styles.seg} accessibilityRole="radiogroup">
               <SegOption label="Finished" active={status === 'finished'} onPress={() => setStatus('finished')} />
               <SegOption label="Still reading" active={status === 'reading'} onPress={() => setStatus('reading')} />
             </View>
@@ -172,32 +182,29 @@ export default function ConfirmScreen() {
           <View style={styles.fields}>
             <Field label="Title" value={title} onChangeText={setTitle} />
             <Field label="Author" value={author} onChangeText={setAuthor} />
-            <Field label="Genre" value={genre} onChangeText={setGenre} />
-            <Field label="Pages" value={pages} onChangeText={setPages} keyboardType="number-pad" />
+            <View style={styles.fieldPair}>
+              <Field label="Genre" value={genre} onChangeText={setGenre} style={styles.fieldHalf} />
+              <Field label="Pages" value={pages} onChangeText={setPages} keyboardType="number-pad" style={styles.fieldHalf} />
+            </View>
 
             {status === 'reading' ? (
               <Field label="Pages read so far" value={pagesRead} onChangeText={setPagesRead} keyboardType="number-pad" />
             ) : (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>Finished on</Text>
-                <View style={styles.inputStatic}>
-                  <Text style={styles.inputStaticText}>
-                    {formatDate(editing?.finishedAt ?? new Date().toISOString())}
-                  </Text>
-                </View>
+              <View style={styles.staticRow}>
+                <Text style={styles.staticLabel}>Finished on</Text>
+                <Text style={styles.staticValue}>{formatDate(editing?.finishedAt ?? new Date().toISOString())}</Text>
               </View>
             )}
 
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>
-                A note to your future self <Text style={{ opacity: 0.6 }}>(optional)</Text>
-              </Text>
+              <Text style={styles.fieldLabel}>Note to your future self (optional)</Text>
               <TextInput
                 style={[styles.input, styles.inputMultiline]}
                 value={note}
                 onChangeText={setNote}
                 placeholder="Read on the train, mostly."
-                placeholderTextColor={color.textMuted55}
+                placeholderTextColor={color.placeholder}
+                accessibilityLabel="Note to your future self"
                 multiline
               />
             </View>
@@ -213,12 +220,12 @@ export default function ConfirmScreen() {
             <Text style={styles.discardLabel}>{editing ? 'Cancel' : 'Discard'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.enshrineBtn, saving && styles.btnDisabled]}
+            style={[styles.primaryBtn, saving && styles.btnDisabled]}
             accessibilityRole="button"
             onPress={primary.onPress}
             disabled={saving}
           >
-            <Text style={styles.enshrineLabel}>{primary.label}</Text>
+            <Text style={styles.primaryLabel}>{primary.label}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -244,21 +251,24 @@ function Field({
   value,
   onChangeText,
   keyboardType,
+  style,
 }: {
   label: string;
   value: string;
   onChangeText: (v: string) => void;
   keyboardType?: 'default' | 'number-pad';
+  style?: StyleProp<ViewStyle>;
 }) {
   return (
-    <View style={styles.field}>
+    <View style={[styles.field, style]}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <TextInput
         style={styles.input}
         value={value}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
-        placeholderTextColor={color.textMuted55}
+        accessibilityLabel={label}
+        placeholderTextColor={color.placeholder}
       />
     </View>
   );
@@ -270,168 +280,168 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingHorizontal: space[4],
+    paddingTop: space[1],
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: color.divider,
+  },
+  headerSide: {
+    width: 76,
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingLeft: space[2],
   },
   retake: {
-    fontFamily: font.body,
-    fontSize: 13,
-    color: color.accent,
-    width: 52,
+    fontFamily: font.sansMedium,
+    fontSize: 16,
+    color: color.text,
   },
   headerTitle: {
-    fontFamily: font.heading,
-    fontSize: 15,
-    color: color.text,
+    ...type.headerTitle,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
+    paddingHorizontal: gutter,
+    paddingTop: space[4],
+    paddingBottom: space[6],
+    gap: 18,
   },
   introRow: {
     flexDirection: 'row',
-    gap: 14,
-    marginBottom: 18,
+    gap: space[4],
+    alignItems: 'flex-start',
   },
   plate: {
-    width: 88,
+    width: 76,
     aspectRatio: 2 / 3,
   },
   introCopy: {
     flex: 1,
+    gap: space[2],
+    paddingTop: 2,
   },
   tag: {
     alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderColor: color.accent,
-    borderRadius: radius.sm,
-    paddingVertical: 3,
+    backgroundColor: color.accentTint,
+    borderRadius: radius.pill,
+    paddingVertical: 4,
     paddingHorizontal: 10,
-    marginBottom: 8,
   },
   tagLabel: {
-    fontFamily: font.body,
-    fontSize: 11,
-    color: color.accent,
+    ...type.label,
+    color: color.accentText,
   },
   introBody: {
-    fontFamily: font.body,
-    fontSize: 12,
-    lineHeight: 19,
-    color: color.textMuted62,
+    ...type.secondary,
+    lineHeight: 21,
   },
   seg: {
     flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: color.divider,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    marginBottom: 16,
+    gap: 4,
+    padding: 4,
+    borderRadius: radius.lg,
+    backgroundColor: color.surface,
   },
   segOpt: {
     flex: 1,
-    paddingVertical: 8,
+    height: 40,
+    borderRadius: 9,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   segOptActive: {
-    borderWidth: 1,
-    borderColor: color.accent,
-    borderRadius: radius.md,
-    margin: -1,
+    backgroundColor: color.card,
+    ...shadow.sm,
   },
   segLabel: {
-    fontFamily: font.body,
-    fontSize: 13,
-    color: color.text,
+    fontFamily: font.sansMedium,
+    fontSize: 15,
+    color: color.textSecondary,
   },
   segLabelActive: {
-    color: color.accent,
+    fontFamily: font.sansSemiBold,
+    color: color.text,
   },
   fields: {
-    gap: 12,
+    gap: 14,
+  },
+  fieldPair: {
+    flexDirection: 'row',
+    gap: space[3],
+  },
+  fieldHalf: {
+    flex: 1,
   },
   field: {
-    gap: 5,
+    gap: 6,
   },
   fieldLabel: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.textMuted70,
+    ...type.label,
   },
   input: {
-    minHeight: 38,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontFamily: font.body,
-    fontSize: 14,
-    color: color.text,
-    borderWidth: 1,
-    borderColor: color.divider,
+    minHeight: 48,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    ...type.body,
+    lineHeight: 22,
+    backgroundColor: color.surface,
     borderRadius: radius.md,
   },
   inputMultiline: {
-    minHeight: 62,
+    minHeight: 80,
     textAlignVertical: 'top',
   },
-  inputStatic: {
-    minHeight: 38,
-    paddingHorizontal: 10,
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: color.divider,
-    borderRadius: radius.md,
+  staticRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: space[1],
   },
-  inputStaticText: {
-    fontFamily: font.body,
-    fontSize: 14,
-    color: color.text,
+  staticLabel: {
+    ...type.body,
+    fontSize: 15,
+    color: color.textSecondary,
+  },
+  staticValue: {
+    ...type.body,
+    fontSize: 15,
     fontVariant: ['tabular-nums', 'lining-nums'],
   },
   footer: {
-    borderTopWidth: 1,
-    borderTopColor: color.divider,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 32,
+    paddingHorizontal: gutter,
+    paddingTop: space[3],
+    paddingBottom: space[3],
     flexDirection: 'row',
     gap: 10,
   },
   discardBtn: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: color.divider,
-    borderRadius: radius.md,
-    paddingVertical: 12,
+    height: 52,
+    borderRadius: radius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   discardLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: color.text,
+    fontFamily: font.sansMedium,
+    fontSize: 16,
+    color: color.textSecondary,
   },
-  enshrineBtn: {
+  primaryBtn: {
     flex: 2,
-    backgroundColor: color.accent,
-    borderRadius: radius.md,
-    paddingVertical: 12,
+    height: 52,
+    backgroundColor: color.ink,
+    borderRadius: radius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   btnDisabled: {
     opacity: 0.6,
   },
-  enshrineLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: '#fff',
+  primaryLabel: {
+    ...type.button,
+    color: color.onInk,
   },
 });

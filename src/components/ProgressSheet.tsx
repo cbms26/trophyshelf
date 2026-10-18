@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { color, font, radius } from '../theme/tokens';
+import { color, gutter, radius, space, type } from '../theme/tokens';
 import { Book } from '../types';
 
 type Props = {
@@ -47,6 +47,7 @@ export default function ProgressSheet({ book, onClose, onUpdate, onFinish }: Pro
       <Pressable style={styles.backdrop} onPress={finishing ? undefined : onClose} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} pointerEvents="box-none">
         <View style={styles.sheet}>
+          <View style={styles.grabber} />
           <Text style={styles.kicker}>Reading now</Text>
           <Text style={styles.title} numberOfLines={2}>
             {book.title}
@@ -61,7 +62,7 @@ export default function ProgressSheet({ book, onClose, onUpdate, onFinish }: Pro
               onChangeText={setPagesRead}
               keyboardType="number-pad"
               placeholder="0"
-              placeholderTextColor={color.textMuted55}
+              placeholderTextColor={color.placeholder}
               editable={!finishing}
             />
           </View>
@@ -93,88 +94,83 @@ export default function ProgressSheet({ book, onClose, onUpdate, onFinish }: Pro
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(45, 43, 43, 0.5)',
+    backgroundColor: color.backdrop,
   },
   sheet: {
-    backgroundColor: color.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.divider,
-    paddingHorizontal: 20,
-    paddingTop: 18,
+    backgroundColor: color.bg,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    paddingHorizontal: gutter,
+    paddingTop: space[2],
     paddingBottom: 36,
-    gap: 6,
+    gap: space[1],
+  },
+  grabber: {
+    alignSelf: 'center',
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: color.track,
+    marginBottom: space[4],
   },
   kicker: {
-    fontFamily: font.body,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: color.accent,
+    ...type.label,
   },
   title: {
-    fontFamily: font.heading,
-    fontSize: 22,
-    lineHeight: 26,
-    color: color.text,
+    ...type.title,
   },
   author: {
-    fontFamily: font.body,
-    fontStyle: 'italic',
-    fontSize: 13,
-    color: color.textMuted62,
-    marginBottom: 10,
+    ...type.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: color.textSecondary,
+    marginBottom: space[4],
   },
   field: {
-    gap: 5,
+    gap: 6,
   },
   fieldLabel: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.textMuted70,
+    ...type.label,
   },
   input: {
-    minHeight: 38,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontFamily: font.body,
-    fontSize: 14,
-    color: color.text,
-    borderWidth: 1,
-    borderColor: color.divider,
+    minHeight: 48,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    ...type.body,
+    lineHeight: 22,
+    backgroundColor: color.surface,
     borderRadius: radius.md,
-    backgroundColor: color.bg,
   },
   actions: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 14,
+    marginTop: space[5],
   },
   secondaryBtn: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: color.divider,
-    borderRadius: radius.md,
-    paddingVertical: 12,
+    height: 52,
+    backgroundColor: color.surface,
+    borderRadius: radius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   secondaryLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
+    ...type.button,
+    fontSize: 15,
     color: color.text,
   },
   primaryBtn: {
     flex: 1.4,
-    backgroundColor: color.accent,
-    borderRadius: radius.md,
-    paddingVertical: 12,
+    height: 52,
+    backgroundColor: color.ink,
+    borderRadius: radius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryLabel: {
-    fontFamily: font.heading,
-    fontSize: 14,
-    color: '#fff',
+    ...type.button,
+    fontSize: 15,
+    color: color.onInk,
   },
   disabled: {
     opacity: 0.6,

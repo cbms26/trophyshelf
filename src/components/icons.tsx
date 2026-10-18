@@ -2,7 +2,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 type IconProps = { size?: number; color?: string; strokeWidth?: number };
 
-export function SearchIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: IconProps) {
+export function SearchIcon({ size = 17, color = '#1C1B19', strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round">
       <Circle cx={11} cy={11} r={7} />
@@ -11,7 +11,7 @@ export function SearchIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: 
   );
 }
 
-export function YearIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: IconProps) {
+export function YearIcon({ size = 17, color = '#1C1B19', strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round">
       <Path d="M3 20h18M7 20V10M12 20V4M17 20v-7" />
@@ -19,7 +19,7 @@ export function YearIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: Ic
   );
 }
 
-export function ShelfIcon({ size = 20, color = '#201f1d', strokeWidth = 1.5 }: IconProps) {
+export function ShelfIcon({ size = 20, color = '#1C1B19', strokeWidth = 1.5 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M4 19.5V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-1.5Z" />
@@ -28,7 +28,7 @@ export function ShelfIcon({ size = 20, color = '#201f1d', strokeWidth = 1.5 }: I
   );
 }
 
-export function CameraIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: IconProps) {
+export function CameraIcon({ size = 17, color = '#1C1B19', strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z" />
@@ -37,7 +37,7 @@ export function CameraIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: 
   );
 }
 
-export function MedalIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: IconProps) {
+export function MedalIcon({ size = 17, color = '#1C1B19', strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
@@ -50,7 +50,7 @@ export function MedalIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: I
   );
 }
 
-export function GearIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: IconProps) {
+export function GearIcon({ size = 17, color = '#1C1B19', strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <Circle cx={12} cy={12} r={3} />
@@ -78,10 +78,64 @@ export function SendIcon({ size = 18, color = '#fff', strokeWidth = 1.8 }: IconP
   );
 }
 
-export function CloseIcon({ size = 18, color = '#201f1d', strokeWidth = 1.6 }: IconProps) {
+export function CloseIcon({ size = 18, color = '#1C1B19', strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round">
       <Path d="M18 6 6 18M6 6l12 12" />
+    </Svg>
+  );
+}
+
+export function BackIcon({ size = 24, color = '#1C1B19', strokeWidth = 1.8 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="m15 18-6-6 6-6" />
+    </Svg>
+  );
+}
+
+export function ChevronRightIcon({ size = 18, color = '#1C1B19', strokeWidth = 1.8 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="m9 18 6-6-6-6" />
+    </Svg>
+  );
+}
+
+export function ChevronDownIcon({ size = 14, color = '#1C1B19', strokeWidth = 2 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="m6 9 6 6 6-6" />
+    </Svg>
+  );
+}
+
+export function ShareIcon({ size = 21, color = '#1C1B19', strokeWidth = 1.7 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M12 3v12" />
+      <Path d="m7 8 5-5 5 5" />
+      <Path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+    </Svg>
+  );
+}
+
+export function MoreIcon({ size = 21, color = '#1C1B19' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <Circle cx={5} cy={12} r={1.6} />
+      <Circle cx={12} cy={12} r={1.6} />
+      <Circle cx={19} cy={12} r={1.6} />
+    </Svg>
+  );
+}
+
+export function ImageIcon({ size = 22, color = '#1C1B19', strokeWidth = 1.7 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+      <Circle cx={9} cy={9} r={2} />
+      <Path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
     </Svg>
   );
 }

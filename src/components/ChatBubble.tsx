@@ -18,7 +18,7 @@ export default function ChatBubble({ bottom = 20 }: { bottom?: number }) {
         activeOpacity={0.85}
       >
         {/* Swap for the final logo: <Image source={require('../../assets/chat-logo.png')} style={styles.logo} /> */}
-        <LibrarianIcon size={26} />
+        <LibrarianIcon size={22} color={color.text} strokeWidth={1.7} />
       </TouchableOpacity>
       <ChatSheet visible={open} onClose={() => setOpen(false)} />
     </>
@@ -28,13 +28,13 @@ export default function ChatBubble({ bottom = 20 }: { bottom?: number }) {
 const styles = StyleSheet.create({
   bubble: {
     position: 'absolute',
-    right: 18,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: color.accent,
-    borderWidth: 2,
-    borderColor: color.accent300,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: color.card,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: color.divider,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadow.md,

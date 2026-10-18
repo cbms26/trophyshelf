@@ -6,7 +6,7 @@ const MONTH_LETTERS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D
 export type YearStats = {
   volumes: number;
   pages: number;
-  months: { label: string; count: number; h: string; fill: string }[];
+  months: { label: string; count: number; h: string }[];
   genres: { name: string; n: number; pct: string }[];
   notables: { k: string; v: string }[];
 };
@@ -26,7 +26,6 @@ export function computeYearStats(books: Book[], year: number): YearStats {
     label,
     count: monthCounts[i],
     h: `${Math.max(6, Math.round((monthCounts[i] / maxMonth) * 100))}%`,
-    fill: monthCounts[i] > 0 ? 'rgba(182, 130, 53, 0.22)' : 'transparent',
   }));
 
   const genreCounts = new Map<string, number>();

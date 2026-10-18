@@ -5,9 +5,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CloseIcon, ImageIcon } from '../components/icons';
 import { downscaleImage } from '../lib/downscaleImage';
 import { RootStackParamList } from '../navigation/types';
-import { color, font } from '../theme/tokens';
+import { color, font, gutter, radius, space, type } from '../theme/tokens';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Capture'>;
 
@@ -78,7 +79,7 @@ export default function CaptureScreen() {
           accessibilityLabel="Close"
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.iconGlyph}>✕</Text>
+          <CloseIcon size={22} color={color.nightText} strokeWidth={1.8} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Photograph the cover</Text>
         <TouchableOpacity
@@ -87,7 +88,7 @@ export default function CaptureScreen() {
           accessibilityLabel="Library"
           onPress={pickFromLibrary}
         >
-          <Text style={styles.iconGlyph}>▤</Text>
+          <ImageIcon color={color.nightText} />
         </TouchableOpacity>
       </View>
 
@@ -146,104 +147,100 @@ export default function CaptureScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: color.neutral900,
+    backgroundColor: color.night,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingHorizontal: 14,
+    paddingTop: space[1],
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   iconBtn: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconGlyph: {
-    color: color.neutral100,
-    fontSize: 16,
-  },
   headerTitle: {
-    fontFamily: font.heading,
-    fontSize: 15,
-    color: color.neutral100,
+    ...type.headerTitle,
+    color: color.nightText,
   },
   viewfinderWrap: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: gutter,
   },
   viewfinder: {
-    width: 236,
+    width: 240,
     aspectRatio: 2 / 3,
+    borderRadius: radius.md,
     overflow: 'hidden',
-    backgroundColor: '#3a3835',
+    backgroundColor: color.nightSurface,
   },
   viewfinderFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    padding: space[4],
   },
   fallbackText: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.neutral500,
+    ...type.secondary,
+    color: color.nightTextSecondary,
     textAlign: 'center',
   },
   viewfinderCorner: {
     ...StyleSheet.absoluteFill,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: color.accent,
-    opacity: 0.9,
-    margin: -14,
+    borderColor: 'rgba(244, 242, 238, 0.35)',
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingHorizontal: gutter,
+    paddingBottom: space[8],
     alignItems: 'center',
-    gap: 20,
+    gap: space[6],
   },
   hint: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.neutral400,
+    ...type.secondary,
+    color: color.nightTextSecondary,
     textAlign: 'center',
+    maxWidth: 300,
   },
   controlsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 36,
+    gap: 40,
   },
   controlLabel: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.neutral400,
+    fontFamily: font.sansMedium,
+    fontSize: 15,
+    color: color.nightText,
+    minWidth: 56,
+    textAlign: 'center',
   },
   shutterOuter: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    borderWidth: 1,
-    borderColor: color.accent,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 3,
+    borderColor: color.nightText,
     alignItems: 'center',
     justifyContent: 'center',
   },
   shutterInner: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: color.accent,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: color.nightText,
   },
   sampleBtn: {
-    paddingVertical: 8,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   sampleLabel: {
-    fontFamily: font.body,
-    fontSize: 12,
-    color: color.accent400,
-    textDecorationLine: 'underline',
+    fontFamily: font.sansMedium,
+    fontSize: 15,
+    color: color.nightAccent,
   },
 });
