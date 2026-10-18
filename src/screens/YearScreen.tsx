@@ -1,6 +1,7 @@
 import { Share, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BottomBar from '../components/BottomBar';
+import BottomBar, { BOTTOM_BAR_CLEARANCE } from '../components/BottomBar';
+import ChatBubble from '../components/ChatBubble';
 import { computeYearStats } from '../lib/yearStats';
 import { useBooks } from '../store/BooksContext';
 import { color, font } from '../theme/tokens';
@@ -81,6 +82,7 @@ export default function YearScreen() {
         </View>
       </ScrollView>
       <BottomBar active="year" />
+      <ChatBubble bottom={BOTTOM_BAR_CLEARANCE} />
     </SafeAreaView>
   );
 }

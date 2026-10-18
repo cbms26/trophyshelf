@@ -46,13 +46,18 @@ export default function PrivacyPage() {
             When you use the AI features, a cover photo or book details are
             sent to Google Gemini to do the work.
           </li>
+          <li>
+            When you chat with the Librarian, your message and your book list
+            are sent to Google Gemini and Google Books. Your chat history stays
+            on your device.
+          </li>
         </Bullets>
       </Section>
 
       <Section title="Data on your device">
         <p>
-          Your book list, reading progress, notes, plaque texts and cover
-          photos are saved only on your device. In the mobile app they are
+          Your book list, reading progress, notes, plaque texts, cover photos
+          and Librarian chat history are saved only on your device. In the mobile app they are
           saved in the app&apos;s own storage. On the website they are saved in
           your browser&apos;s local storage.
         </p>
@@ -63,7 +68,7 @@ export default function PrivacyPage() {
       </Section>
 
       <Section title="Data sent to our server">
-        <p>The app sends data to our server only for its two AI features:</p>
+        <p>The app sends data to our server only for its three AI features:</p>
         <Bullets>
           <li>
             <strong>Reading a cover.</strong> When you add a book from a photo,
@@ -76,10 +81,20 @@ export default function PrivacyPage() {
             sends its title, author and genre. The server asks Google Gemini to
             write a short plaque text.
           </li>
+          <li>
+            <strong>Chatting with the Librarian.</strong> When you send a
+            message, the app sends it with your recent chat messages and the
+            title, author, genre, status, finish date and note of each book on
+            your shelf. Covers are never sent. The server asks Google Gemini
+            to answer, and searches Google Books for real books to recommend.
+            Only search words chosen by Gemini (such as a genre or author) are
+            sent to Google Books.
+          </li>
         </Bullets>
         <p>
           Our server passes this data to Google and sends the answer back to
-          your device. Our server does not save the photo or the book details.
+          your device. Our server does not save the photo, the book details or
+          your chat messages.
         </p>
         <p>
           If you type a book&apos;s details yourself, no photo is sent. If the
@@ -98,7 +113,12 @@ export default function PrivacyPage() {
             Google Privacy Policy
           </ExternalLink>
           . Depending on the service plan, Google may keep this data for a
-          limited time, and may use it to improve its products.
+          limited time, and may use it to improve its products. Google Books
+          searches are covered by the{" "}
+          <ExternalLink href="https://developers.google.com/books/terms">
+            Google Books APIs Terms of Service
+          </ExternalLink>
+          .
         </p>
         <p>
           Please only photograph book covers. Do not photograph people,
@@ -160,6 +180,7 @@ export default function PrivacyPage() {
       <Section title="Deleting your data">
         <p>
           To delete a book, open it, tap &quot;…&quot; and choose Remove. To
+          delete your chat history, open the Librarian and tap Clear. To
           delete everything, uninstall the app (or clear your browser&apos;s
           site data for the website). Because we do not keep your books, there
           is nothing else to delete on our side.

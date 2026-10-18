@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ActionMenu from '../components/ActionMenu';
+import ChatBubble from '../components/ChatBubble';
 import CoverPlate from '../components/CoverPlate';
 import { daysBetween } from '../lib/inscriptions';
 import { sharePlate } from '../lib/sharePlate';
@@ -119,6 +120,7 @@ export default function DetailScreen() {
         onClose={() => setConfirmOpen(false)}
         items={[{ label: 'Remove from shelf', onPress: remove, destructive: true }]}
       />
+      <ChatBubble />
     </SafeAreaView>
   );
 }

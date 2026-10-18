@@ -7,6 +7,9 @@ import { CameraIcon, MedalIcon, ShelfIcon } from './icons';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+// Height of the bar plus breathing room, for floating buttons that sit above it.
+export const BOTTOM_BAR_CLEARANCE = 72;
+
 export default function BottomBar({ active }: { active: 'shelf' | 'year' }) {
   const navigation = useNavigation<Nav>();
   return (

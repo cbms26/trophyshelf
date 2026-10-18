@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { BooksProvider, useBooks } from './src/store/BooksContext';
+import { ChatProvider } from './src/store/ChatContext';
 import { color } from './src/theme/tokens';
 
 function Gate({ children }: { children: React.ReactNode }) {
@@ -30,11 +31,13 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <BooksProvider>
-          <Gate>
-            <NavigationContainer>
-              <RootNavigator />
-            </NavigationContainer>
-          </Gate>
+          <ChatProvider>
+            <Gate>
+              <NavigationContainer>
+                <RootNavigator />
+              </NavigationContainer>
+            </Gate>
+          </ChatProvider>
         </BooksProvider>
         <StatusBar style="dark" />
       </SafeAreaProvider>

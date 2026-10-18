@@ -3,7 +3,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BottomBar from '../components/BottomBar';
+import BottomBar, { BOTTOM_BAR_CLEARANCE } from '../components/BottomBar';
+import ChatBubble from '../components/ChatBubble';
 import CoverPlate from '../components/CoverPlate';
 import { GearIcon, SearchIcon, YearIcon } from '../components/icons';
 import ProgressSheet from '../components/ProgressSheet';
@@ -102,6 +103,7 @@ export default function ShelfScreen() {
         </>
       )}
       <BottomBar active="shelf" />
+      <ChatBubble bottom={BOTTOM_BAR_CLEARANCE} />
       <ProgressSheet
         book={progressBook}
         onClose={() => setProgressBook(null)}

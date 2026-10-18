@@ -58,3 +58,30 @@ export function GearIcon({ size = 17, color = '#201f1d', strokeWidth = 1.6 }: Ic
     </Svg>
   );
 }
+
+// Placeholder mark for the Librarian bubble until the final logo asset lands.
+export function LibrarianIcon({ size = 24, color = '#fff', strokeWidth = 1.6 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M12 7v14" />
+      <Path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3Z" />
+    </Svg>
+  );
+}
+
+export function SendIcon({ size = 18, color = '#fff', strokeWidth = 1.8 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M12 19V5" />
+      <Path d="m5 12 7-7 7 7" />
+    </Svg>
+  );
+}
+
+export function CloseIcon({ size = 18, color = '#201f1d', strokeWidth = 1.6 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round">
+      <Path d="M18 6 6 18M6 6l12 12" />
+    </Svg>
+  );
+}
