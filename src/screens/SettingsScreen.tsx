@@ -31,10 +31,10 @@ export default function SettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Section label="Account">
-          <Row label="Signed in as" value="Not signed in" />
+        <Section label="Your data">
+          <Row label="Saved on" value="This device" />
           <Text style={styles.hint}>
-            Accounts and cloud sync are coming — for now your shelf lives only on this device.
+            Your shelf lives only on this device. Deleting the app deletes your shelf.
           </Text>
         </Section>
 

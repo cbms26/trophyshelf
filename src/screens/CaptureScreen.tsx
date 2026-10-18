@@ -125,8 +125,8 @@ export default function CaptureScreen() {
               </View>
             </TouchableOpacity>
           )}
-          <TouchableOpacity accessibilityRole="button" onPress={goToManualEntry}>
-            <Text style={styles.controlLabel}>ISBN</Text>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Enter details manually" onPress={goToManualEntry}>
+            <Text style={styles.controlLabel}>Type</Text>
           </TouchableOpacity>
         </View>
         {!canUseCamera ? (

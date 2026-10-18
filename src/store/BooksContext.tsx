@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { deleteCover, moveCachedCovers } from '../lib/coverStore';
 import { Book } from '../types';
 
 const BOOKS_KEY_V1 = 'trophyshelf/books/v1';
@@ -58,14 +59,22 @@ export function BooksProvider({ children }: { children: ReactNode }) {
           AsyncStorage.getItem(BOOKS_KEY_V1),
           AsyncStorage.getItem(ONBOARDED_KEY),
         ]);
+        let loaded: Book[] = [];
         if (v2) {
-          setBooks(JSON.parse(v2));
+          loaded = JSON.parse(v2);
         } else if (v1) {
-          const migrated = migrateV1(JSON.parse(v1));
-          setBooks(migrated);
-          await AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(migrated));
+          loaded = migrateV1(JSON.parse(v1));
+          await AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(loaded));
           await AsyncStorage.removeItem(BOOKS_KEY_V1);
         }
+        // Books saved before covers were made permanent may still point at
+        // the cache directory — move them while there's still a file to move.
+        const covers = await moveCachedCovers(loaded);
+        if (covers.changed) {
+          loaded = covers.books;
+          await AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(loaded));
+        }
+        setBooks(loaded);
         if (storedOnboarded === '1') setOnboarded(true);
       } finally {
         setReady(true);
@@ -99,7 +108,10 @@ export function BooksProvider({ children }: { children: ReactNode }) {
         persist((prev) =>
           prev.map((b) => (b.id === id ? { ...b, ...patch, updatedAt: new Date().toISOString() } : b))
         ),
-      deleteBook: (id) => persist((prev) => prev.filter((b) => b.id !== id)),
+      deleteBook: (id) => {
+        deleteCover(books.find((b) => b.id === id)?.coverUri ?? null);
+        persist((prev) => prev.filter((b) => b.id !== id));
+      },
       nextVolume: () => finished.reduce((max, b) => Math.max(max, b.volume ?? 0), 0) + 1,
     };
   }, [ready, onboarded, books, persist]);

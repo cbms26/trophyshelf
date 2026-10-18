@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CoverPlate from '../components/CoverPlate';
+import { persistCover } from '../lib/coverStore';
 import { writeInscription } from '../lib/inscribe';
 import { RootStackParamList } from '../navigation/types';
 import { useBooks } from '../store/BooksContext';
@@ -73,14 +74,16 @@ export default function ConfirmScreen() {
     navigation.goBack();
   };
 
-  const handleStartReading = () => {
+  const handleStartReading = async () => {
+    setSaving(true);
     const now = new Date().toISOString();
+    const coverUri = await persistCover(photoUri);
     const book: Book = {
       id: `${Date.now()}`,
       ...trimmed(),
       pagesRead: readCount,
       inscription: '',
-      coverUri: photoUri,
+      coverUri,
       status: 'reading',
       startedAt: now,
       finishedAt: null,
@@ -96,18 +99,21 @@ export default function ConfirmScreen() {
     setSaving(true);
     const fields = trimmed();
     const now = new Date().toISOString();
-    const { text } = await writeInscription({
-      title: fields.title,
-      author: fields.author,
-      genre: fields.genre,
-      days: null,
-    });
+    const [{ text }, coverUri] = await Promise.all([
+      writeInscription({
+        title: fields.title,
+        author: fields.author,
+        genre: fields.genre,
+        days: null,
+      }),
+      persistCover(photoUri),
+    ]);
     const book: Book = {
       id: `${Date.now()}`,
       ...fields,
       pagesRead: pageCount,
       inscription: text,
-      coverUri: photoUri,
+      coverUri,
       status: 'finished',
       startedAt: null,
       finishedAt: now,

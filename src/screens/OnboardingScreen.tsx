@@ -19,7 +19,7 @@ const SLIDES = [
   {
     title: "Snap it, don't type it",
     body: 'One photo of the cover fills in the title, author, genre and page count. Fix anything it gets wrong — it takes about eight seconds.',
-    caption: 'Photos are processed on our servers and stored with your account.',
+    caption: 'Cover photos are sent to Google Gemini to be read. Your shelf stays on this phone.',
   },
   {
     title: 'Every finished book gets a plaque',
