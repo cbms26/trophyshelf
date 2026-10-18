@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Platform } from 'react-native';
 import { deleteCover, moveCachedCovers } from '../lib/coverStore';
+import { importLegacyWebTrophies } from '../lib/legacyWebImport';
 import { Book } from '../types';
 
 const BOOKS_KEY_V1 = 'trophyshelf/books/v1';
@@ -60,12 +62,22 @@ export function BooksProvider({ children }: { children: ReactNode }) {
           AsyncStorage.getItem(ONBOARDED_KEY),
         ]);
         let loaded: Book[] = [];
+        let imported = false;
         if (v2) {
           loaded = JSON.parse(v2);
         } else if (v1) {
           loaded = migrateV1(JSON.parse(v1));
           await AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(loaded));
           await AsyncStorage.removeItem(BOOKS_KEY_V1);
+        } else if (Platform.OS === 'web') {
+          // First launch of the PWA: bring over a shelf from the old website.
+          const legacy = await importLegacyWebTrophies();
+          if (legacy) {
+            loaded = legacy;
+            imported = true;
+            await AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(loaded));
+            await AsyncStorage.setItem(ONBOARDED_KEY, '1');
+          }
         }
         // Books saved before covers were made permanent may still point at
         // the cache directory — move them while there's still a file to move.
@@ -75,7 +87,7 @@ export function BooksProvider({ children }: { children: ReactNode }) {
           await AsyncStorage.setItem(BOOKS_KEY, JSON.stringify(loaded));
         }
         setBooks(loaded);
-        if (storedOnboarded === '1') setOnboarded(true);
+        if (storedOnboarded === '1' || imported) setOnboarded(true);
       } finally {
         setReady(true);
       }

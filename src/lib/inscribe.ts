@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, CLIENT_HEADER } from '../config';
 import { fallbackInscription } from './inscriptions';
 
 type InscribeApiResponse = { ok: true; inscription: string } | { ok: false; error: string };
@@ -21,7 +21,7 @@ export async function writeInscription(input: {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-trophyshelf-client': 'mobile/1.0',
+        'x-trophyshelf-client': CLIENT_HEADER,
       },
       body: JSON.stringify({ title: input.title, author: input.author, genre: input.genre }),
       signal: controller.signal,

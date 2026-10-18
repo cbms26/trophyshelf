@@ -1,5 +1,5 @@
 import { fetch } from 'expo/fetch';
-import { LIBRARIAN_API_URL } from '../config';
+import { CLIENT_HEADER, LIBRARIAN_API_URL } from '../config';
 import { Book } from '../types';
 
 // Mirrors the /api/chat contract in the trophyshelf-librarian repo
@@ -69,7 +69,7 @@ export async function streamChat(
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/x-ndjson',
-          'x-trophyshelf-client': 'mobile/1.0',
+          'x-trophyshelf-client': CLIENT_HEADER,
         },
         body: JSON.stringify(input),
         signal: controller.signal,

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, CLIENT_HEADER } from '../config';
 import { DetectedCover } from '../types';
 
 type AnalyzeApiResponse =
@@ -12,7 +12,7 @@ export async function analyzeCover(base64Jpeg: string): Promise<DetectedCover> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-trophyshelf-client': 'mobile/1.0',
+      'x-trophyshelf-client': CLIENT_HEADER,
     },
     body: JSON.stringify({ image: `data:image/jpeg;base64,${base64Jpeg}` }),
   });

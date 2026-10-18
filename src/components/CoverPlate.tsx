@@ -1,4 +1,5 @@
 import { Image, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { useCoverSource } from '../lib/webCovers';
 import { color, font, radius, shadow } from '../theme/tokens';
 
 // A book cover: the captured photo with softly rounded corners and an optional
@@ -13,11 +14,12 @@ type CoverPlateProps = {
 };
 
 export default function CoverPlate({ style, elevation, label, imageUri }: CoverPlateProps) {
+  const source = useCoverSource(imageUri);
   return (
     <View style={[styles.outer, elevation ? shadow[elevation] : null, style]}>
       <View style={styles.inner}>
-        {imageUri ? (
-          <Image source={{ uri: imageUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        {source ? (
+          <Image source={{ uri: source }} style={StyleSheet.absoluteFill} resizeMode="cover" />
         ) : label ? (
           <View style={styles.labelWrap}>
             <Text style={styles.label}>{label}</Text>

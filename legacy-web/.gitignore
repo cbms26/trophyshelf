@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# PWA build copied in from ../dist-web by scripts/copy-pwa.mjs (prebuild)
+/public/*

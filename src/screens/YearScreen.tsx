@@ -1,7 +1,8 @@
-import { Share, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomBar, { BOTTOM_BAR_CLEARANCE } from '../components/BottomBar';
 import ChatBubble from '../components/ChatBubble';
+import { shareMessage } from '../lib/sharePlate';
 import { computeYearStats } from '../lib/yearStats';
 import { useBooks } from '../store/BooksContext';
 import { color, font, gutter, radius, space, type } from '../theme/tokens';
@@ -14,9 +15,9 @@ export default function YearScreen() {
   const bestMonthCount = Math.max(0, ...stats.months.map((m) => m.count));
 
   const share = () => {
-    Share.share({
-      message: `My ${YEAR} reading year on TrophyShelf: ${stats.volumes} volumes, ${stats.pages.toLocaleString()} pages.`,
-    }).catch(() => {});
+    shareMessage(
+      `My ${YEAR} reading year on TrophyShelf: ${stats.volumes} volumes, ${stats.pages.toLocaleString()} pages.`
+    );
   };
 
   return (

@@ -46,3 +46,6 @@ google-play-service-account.json
 
 # Private planning docs (not published)
 docs-private/
+
+# PWA web build (npm run build:web)
+dist-web/

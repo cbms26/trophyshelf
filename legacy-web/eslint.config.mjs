@@ -18,6 +18,8 @@ const eslintConfig = defineConfig([
     // Claude Design handoff bundle: prototype/generated files, not part of
     // the Next.js app.
     "design-handoff/**",
+    // Expo web (PWA) build copied in by scripts/copy-pwa.mjs.
+    "public/**",
   ]),
 ]);
 

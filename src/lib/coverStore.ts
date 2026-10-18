@@ -1,10 +1,12 @@
 import { Directory, File, Paths } from 'expo-file-system';
 import { Platform } from 'react-native';
 import { Book } from '../types';
+import { deleteWebCover, isWebCover, saveWebCover } from './webCovers';
 
 // expo-image-manipulator writes resized photos to the cache directory, which
 // the OS may clear at any time. Covers that belong to a saved book are copied
 // into the document directory so they last as long as the app does.
+// On web there is no file system: covers go to IndexedDB (see webCovers.ts).
 
 const COVERS_DIR = 'covers';
 
@@ -21,7 +23,15 @@ function isStoredCover(uri: string): boolean {
 // Returns the permanent URI for a cover. Never throws: if the copy fails, the
 // original URI is kept so saving a book is never blocked.
 export async function persistCover(uri: string | null): Promise<string | null> {
-  if (!uri || Platform.OS === 'web') return uri;
+  if (!uri) return uri;
+  if (Platform.OS === 'web') {
+    if (isWebCover(uri)) return uri;
+    try {
+      return await saveWebCover(uri);
+    } catch {
+      return uri;
+    }
+  }
   try {
     if (isStoredCover(uri)) return uri;
     const source = new File(uri);
@@ -37,7 +47,11 @@ export async function persistCover(uri: string | null): Promise<string | null> {
 // Removes a stored cover when its book is deleted. Only touches files inside
 // our covers folder.
 export function deleteCover(uri: string | null): void {
-  if (!uri || Platform.OS === 'web') return;
+  if (!uri) return;
+  if (Platform.OS === 'web') {
+    if (isWebCover(uri)) deleteWebCover(uri).catch(() => {});
+    return;
+  }
   try {
     if (!isStoredCover(uri)) return;
     const file = new File(uri);

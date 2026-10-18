@@ -32,6 +32,9 @@ const config: ExpoConfig = {
   },
   web: {
     favicon: './assets/favicon.png',
+    // Single-page web build, served as a PWA from trophyshelf.vercel.app
+    // (see legacy-web/next.config.ts and public/index.html).
+    output: 'single',
   },
   plugins: [
     [

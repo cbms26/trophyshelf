@@ -58,8 +58,11 @@ export default function PrivacyPage() {
         <p>
           Your book list, reading progress, notes, plaque texts, cover photos
           and Librarian chat history are saved only on your device. In the mobile app they are
-          saved in the app&apos;s own storage. On the website they are saved in
-          your browser&apos;s local storage.
+          saved in the app&apos;s own storage. On the website (which you can
+          also install to your home screen) they are saved in your browser&apos;s
+          storage (local storage and IndexedDB). Clearing your browser&apos;s
+          site data deletes them, and some browsers clear data for sites you
+          have not used in a while unless the site is installed.
         </p>
         <p>
           We cannot see this data. We do not have a copy of it, and we cannot
